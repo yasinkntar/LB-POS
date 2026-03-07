@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.15.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LB-POS.Data\LB-POS.Data.csproj" />
     <ProjectReference Include="..\LB-POS.Infrastructure\LB-POS.Infrastructure.csproj" />
   </ItemGroup>

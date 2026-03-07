@@ -1,8 +1,11 @@
 using LB_POS.Core;
 using LB_POS.Core.Middleware;
+using LB_POS.Data.Entities.Identity;
 using LB_POS.Infrastructure;
 using LB_POS.Infrastructure.Data;
+using LB_POS.Infrastructure.Seeder;
 using LB_POS.Service;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -21,9 +24,10 @@ builder.Services.AddDbContext<ApplicationDBContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddInfrastructureDependencies();
-builder.Services.AddServiceDependencies();
-builder.Services.AddCoreDependencies();
+builder.Services.AddInfrastructureDependencies()
+                 .AddServiceDependencies()
+                 .AddCoreDependencies()
+                 .AddServiceRegisteration(builder.Configuration);
 #region Localization
 builder.Services.AddControllersWithViews();
 builder.Services.AddLocalization(opt =>
@@ -46,7 +50,13 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 #endregion
 var app = builder.Build();
-
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+    await RoleSeeder.SeedAsync(roleManager);
+    await UserSeeder.SeedAsync(userManager);
+}
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
