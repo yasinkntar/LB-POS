@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>LB_POS.Service</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LB-POS.Data\LB-POS.Data.csproj" />
+    <ProjectReference Include="..\LB-POS.Infrastructure\LB-POS.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

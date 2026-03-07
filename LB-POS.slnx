@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="LB-POS.Core/LB-POS.Core.csproj" />
+  <Project Path="LB-POS.Data/LB-POS.Data.csproj" />
+  <Project Path="LB-POS.Infrastructure/LB-POS.Infrastructure.csproj" />
+  <Project Path="LB-POS.Service/LB-POS.Service.csproj" />
+  <Project Path="LB-POS.Web/LB-POS.Web.csproj" />
+</Solution>
