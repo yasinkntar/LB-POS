@@ -1,13 +1,17 @@
-﻿using LB_POS.Data.Entities.Identity;
+﻿//using Azure;
+using LB_POS.Data.Entities.Identity;
 using LB_POS.Data.Helpers;
 using LB_POS.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Net;
 using System.Text;
+using System.Text.Json;
 namespace LB_POS.Infrastructure
 {
     public static class ServiceRegisteration
@@ -21,7 +25,7 @@ namespace LB_POS.Infrastructure
                 option.Password.RequireLowercase = true;
                 option.Password.RequireNonAlphanumeric = true;
                 option.Password.RequireUppercase = true;
-                option.Password.RequiredLength = 8;
+                option.Password.RequiredLength = 6;
                 option.Password.RequiredUniqueChars = 1;
 
                 // Lockout settings.
@@ -65,7 +69,42 @@ namespace LB_POS.Infrastructure
                    ValidateAudience = jwtSettings.ValidateAudience,
                    ValidateLifetime = jwtSettings.ValidateLifeTime,
                };
+               x.Events = new JwtBearerEvents
+               {
+                   OnChallenge = async context =>
+                   {
+                       context.HandleResponse();
+
+                       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                       context.Response.ContentType = "application/json";
+
+                       var result = new
+                       {
+                           Succeeded = false,
+                           StatusCode = HttpStatusCode.Unauthorized,
+                           Message = "Token is missing or expired"
+                       };
+
+                       await context.Response.WriteAsync(JsonSerializer.Serialize(result));
+                   },
+                   OnForbidden = async context =>
+                   {
+                       context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                       context.Response.ContentType = "application/json";
+
+                       var result = new
+                       {
+                           StatusCode = System.Net.HttpStatusCode.Unauthorized,
+                           Succeeded = true,
+                           Message = "\"You are not allowed to access this resource\""
+                       };
+                       await context.Response.WriteAsync(JsonSerializer.Serialize(result));
+                   }
+               };
+
+
            });
+
 
 
             //Swagger Gn

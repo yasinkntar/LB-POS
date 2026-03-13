@@ -21,7 +21,7 @@ namespace LB_POS.Infrastructure.Seeder
                     PhoneNumberConfirmed = true
                 };
                 await _userManager.CreateAsync(defaultuser, "M123_m#$");
-                await _userManager.AddToRoleAsync(defaultuser, "Admin@123");
+                await _userManager.AddToRoleAsync(defaultuser, "admin");
             }
         }
     }
