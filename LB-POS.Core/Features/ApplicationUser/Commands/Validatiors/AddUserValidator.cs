@@ -1,18 +1,17 @@
 ﻿using FluentValidation;
 using LB_POS.Core.Features.ApplicationUser.Commands.Models;
 using LB_POS.Core.Resources;
-using LB_POS.Service.IService;
 using Microsoft.Extensions.Localization;
 
 namespace LB_POS.Core.Features.ApplicationUser.Commands.Validatiors
 {
     public class AddUserValidator : AbstractValidator<AddUserCommand>
     {
-        private readonly IBranchService _service;
+
         private readonly IStringLocalizer<SharedResources> _Localizer;
-        public AddUserValidator(IBranchService service, IStringLocalizer<SharedResources> Localizer)
+        public AddUserValidator(IStringLocalizer<SharedResources> Localizer)
         {
-            _service = service;
+
             _Localizer = Localizer;
             ApplyNewValidationsRules();
             CustomeValidationsRules();

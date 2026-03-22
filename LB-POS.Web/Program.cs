@@ -25,7 +25,6 @@ builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/");
     options.Conventions.AllowAnonymousToPage("/Login");
-    options.Conventions.AllowAnonymousToPage("/Login");
 });
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
@@ -50,7 +49,7 @@ builder.Services.AddInfrastructureDependencies()
 
 builder.Services.AddLocalization(options =>
 {
-    options.ResourcesPath = "";
+    options.ResourcesPath = "Resources";
 });
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -95,6 +94,16 @@ builder.Services.AddRateLimiter(options =>
         opt.Window = TimeSpan.FromMinutes(1);
     });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins", policy =>
+    {
+        policy.WithOrigins("https://your-frontend-domain.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
 var app = builder.Build();
 
 // ================== Seed ==================
@@ -123,16 +132,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigins", policy =>
-    {
-        policy.WithOrigins("https://your-frontend-domain.com")
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
-    });
-});
+
 app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.UseAuthentication();

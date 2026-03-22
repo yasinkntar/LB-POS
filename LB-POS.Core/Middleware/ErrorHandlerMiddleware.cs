@@ -63,10 +63,9 @@ namespace LB_POS.Core.Middleware
                             responseModel.Message += e.InnerException == null ? "" : "\n" + e.InnerException.Message;
                             responseModel.StatusCode = HttpStatusCode.BadRequest;
                             response.StatusCode = (int)HttpStatusCode.BadRequest;
+                            break;
                         }
-                        responseModel.Message = e.Message;
-                        responseModel.Message += e.InnerException == null ? "" : "\n" + e.InnerException.Message;
-
+                        responseModel.Message = "حدث خطأ داخلي. يرجى المحاولة لاحقاً.";
                         responseModel.StatusCode = HttpStatusCode.InternalServerError;
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;
                         break;

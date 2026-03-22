@@ -8,33 +8,33 @@ namespace LB_POS.Service.Service
 {
     public class BranchService : IBranchService
     {
-        public readonly IBranchRepository repository;
-        public BranchService(IBranchRepository _repository)
+        public readonly IBranchRepository _repository;
+        public BranchService(IBranchRepository repository)
         {
-            repository = _repository;
+            _repository = repository;
         }
 
         public async Task<string> AddAsync(Branch branch)
         {
-            await repository.AddAsync(branch);
+            await _repository.AddAsync(branch);
             return "Success";
         }
 
         public async Task<string> DeleteAsync(Branch ID)
         {
-            await repository.DeleteAsync(ID);
+            await _repository.DeleteAsync(ID);
             return "Success";
         }
 
         public async Task<string> EditAsync(Branch branch)
         {
-            await repository.UpdateAsync(branch);
+            await _repository.UpdateAsync(branch);
             return "Success";
         }
 
         public IQueryable<Branch> FilterBranchPaginatedQuerable(BranchOrderingEnum orderingEnum, string search)
         {
-            var querable = repository.GetTableNoTracking().AsQueryable();
+            var querable = _repository.GetTableNoTracking().AsQueryable();
             if (search != null)
             {
                 querable = querable.Where(x => x.Name.Contains(search) || x.Code.Contains(search));
@@ -60,22 +60,22 @@ namespace LB_POS.Service.Service
 
         public async Task<List<Branch>> GetAllBranchesAsync()
         {
-            return await repository.GetBranchesAsync();
+            return await _repository.GetBranchesAsync();
         }
 
         public async Task<Branch> GetBrancheByIDAsync(Guid ID)
         {
-            return await repository.GetByIdAsync(ID);
+            return await _repository.GetByIdAsync(ID);
         }
 
         public IQueryable<Branch> GetBranchQuerable()
         {
-            return repository.GetTableNoTracking().AsQueryable();
+            return _repository.GetTableNoTracking().AsQueryable();
         }
 
         public async Task<bool> IsUniqueAsync(Expression<Func<Branch, bool>> predicate, Guid? excludeId = null, CancellationToken cancellationToken = default)
         {
-            return await repository.IsUniqueAsync(predicate, excludeId, cancellationToken);
+            return await _repository.IsUniqueAsync(predicate, excludeId, cancellationToken);
         }
     }
 }

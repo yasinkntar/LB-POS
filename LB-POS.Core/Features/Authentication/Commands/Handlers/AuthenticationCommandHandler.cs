@@ -98,7 +98,7 @@ namespace LB_POS.Core.Features.Authentication.Commands.Handlers
 
         public async Task<Response<string>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
         {
-            var result = await _authenticationService.ResetPassword(request.Email, request.Password);
+            var result = await _authenticationService.ResetPassword(request.Email, request.Password, request.Code);
             switch (result)
             {
                 case "UserNotFound": return BadRequest<string>(_stringLocalizer[SharedResourcesKeys.UserIsNotFound]);
@@ -116,7 +116,8 @@ namespace LB_POS.Core.Features.Authentication.Commands.Handlers
                 return BadRequest<string>("User not found");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-
+            if (result.IsLockedOut)
+                return BadRequest<string>("الحساب مقفل. حاول لاحقاً.");
             if (!result.Succeeded)
                 return BadRequest<string>("Wrong password");
 

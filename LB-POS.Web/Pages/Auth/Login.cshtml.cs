@@ -10,9 +10,11 @@ namespace LB_POS.Web.Pages.Auth
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private IMediator _mediatorInstance;
-        protected IMediator Mediator => _mediatorInstance ??= HttpContext.RequestServices.GetService<IMediator>();
-
+        private readonly IMediator _mediator;
+        public LoginModel(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
         [BindProperty]
         public LoginInput Input { get; set; }
 

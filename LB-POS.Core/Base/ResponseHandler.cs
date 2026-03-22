@@ -35,7 +35,7 @@ namespace LB_POS.Core.Base
             return new Response<T>()
             {
                 StatusCode = System.Net.HttpStatusCode.Unauthorized,
-                Succeeded = true,
+                Succeeded = false,
                 Message = Message == null ? _stringLocalizer[SharedResourcesKeys.UnAuthorized] : Message
             };
         }

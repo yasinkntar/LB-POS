@@ -189,8 +189,7 @@ var displayName = User.FindFirstValue(ClaimTypes.GivenName) ??
                             <li><hr class="dropdown-divider"></li>
 
                             <li>
-
-                                <form method="post" asp-page="/Logout">
+                                <form method="post" action="/logout">
 
                                     @Html.AntiForgeryToken()
 

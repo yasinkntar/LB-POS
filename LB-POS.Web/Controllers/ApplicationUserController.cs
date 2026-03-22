@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LB_POS.Web.Controllers
 {
     [ApiController]
-    [Authorize()]
+    [Authorize(Roles = "Admin")]
     public class ApplicationUserController : POSControllerBase
     {
 
@@ -25,7 +25,7 @@ namespace LB_POS.Web.Controllers
         }
 
         [HttpGet(Router.ApplicationUserRouting.GetByID)]
-        public async Task<IActionResult> GetStudentByID([FromRoute] int id)
+        public async Task<IActionResult> GetUserByID([FromRoute] int id)
         {
             return NewResult(await Mediator.Send(new GetUserByIdQuery(id)));
         }

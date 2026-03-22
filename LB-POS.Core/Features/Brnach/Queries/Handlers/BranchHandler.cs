@@ -11,7 +11,7 @@ using Microsoft.Extensions.Localization;
 
 namespace LB_POS.Core.Features.Brnach.Queries.Handlers
 {
-    public class BranchHandler : ResponseHandler, IRequestHandler<GetBranchListQuery, Response<List<GetBranchListResponse>>>,
+    public class BranchHandler : ResponseHandler,
                                                   IRequestHandler<GetBranchByIDQuery, Response<GetSingleBranchResponse>>,
                                                   IRequestHandler<GetStudentPaginatedListQuery, PaginatedResult<GetBranchListResponse>>
     {
@@ -26,11 +26,6 @@ namespace LB_POS.Core.Features.Brnach.Queries.Handlers
         }
 
 
-        {
-            var result = await BranchService.GetAllBranchesAsync();
-            var resultmaper = mapper.Map<List<GetBranchListResponse>>(result);
-            return Success(resultmaper);
-        }
 
         public async Task<Response<GetSingleBranchResponse>> Handle(GetBranchByIDQuery request, CancellationToken cancellationToken)
         {

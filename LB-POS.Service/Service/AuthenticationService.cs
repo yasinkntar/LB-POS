@@ -146,7 +146,7 @@ namespace LB_POS.Service.Service
             return response;
         }
 
-        public async Task<string> ValidateToken(string accessToken)
+        public string ValidateToken(string accessToken)
         {
             var handler = new JwtSecurityTokenHandler();
             var parameters = new TokenValidationParameters
@@ -199,14 +199,15 @@ namespace LB_POS.Service.Service
                                              .FirstOrDefaultAsync(x => x.Token == accessToken &&
                                                                      x.RefreshToken == refreshToken &&
                                                                      x.UserId == int.Parse(userId));
-            if (userRefreshToken.JwtId != jwtToken.Id)
-            {
-                return ("InvalidJwtId", null);
-            }
             if (userRefreshToken == null)
             {
                 return ("RefreshTokenIsNotFound", null);
             }
+            if (userRefreshToken.JwtId != jwtToken.Id)
+            {
+                return ("InvalidJwtId", null);
+            }
+
 
             if (userRefreshToken.ExpiryDate < DateTime.UtcNow)
             {
@@ -297,6 +298,8 @@ namespace LB_POS.Service.Service
                 {
                     await _userManager.AddPasswordAsync(user, Password);
                 }
+                user.Code = null; // ← أضف هذا
+                await _userManager.UpdateAsync(user);
                 await trans.CommitAsync();
                 return "Success";
             }
