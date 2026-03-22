@@ -4,7 +4,236 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+<div class="container-fluid py-4">
+
+    <!-- 🔥 Filters -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4 p-3">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <select id="branchFilter" class="form-select">
+                    <option value="">All Branches</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="date" id="fromDate" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <input type="date" id="toDate" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <select id="typeFilter" class="form-select">
+                    <option value="">All Orders</option>
+                    <option value="online">Online</option>
+                    <option value="store">In-Store</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔥 KPI -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow border-0 rounded-4 p-3">
+                <h6>Total Sales</h6>
+                <h3 id="totalSales">0</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow border-0 rounded-4 p-3">
+                <h6>Orders</h6>
+                <h3 id="orders">0</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow border-0 rounded-4 p-3">
+                <h6>Avg Ticket</h6>
+                <h3 id="avg">0</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow border-0 rounded-4 p-3">
+                <h6>Online %</h6>
+                <h3 id="online">0%</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 🔥 Charts -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-lg-8">
+            <div class="card shadow border-0 rounded-4 p-3">
+                <h6>Sales Trend</h6>
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow border-0 rounded-4 p-3">
+                <h6>Branches</h6>
+                <canvas id="branchChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 🔥 Branch Table -->
+    <div class="card shadow border-0 rounded-4 mb-4">
+        <div class="card-header bg-white">
+            <h6>Branches Ranking</h6>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table text-center align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Branch</th>
+                        <th>Sales</th>
+                        <th>Orders</th>
+                        <th>Performance</th>
+                    </tr>
+                </thead>
+                <tbody id="branchTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 🔥 AI Insights -->
+    <div class="card shadow border-0 rounded-4 p-3">
+        <h6>AI Insights</h6>
+        <ul id="insights"></ul>
+    </div>
+
 </div>
+<script>
+    let salesChart, branchChart;
+
+    // Load Data
+    async function loadData() {
+
+    // const res = await fetch('/api/dashboard');
+    const data = {
+    "totalSales": 125000,
+    "orders": 1200,
+    "avg": 104,
+    "online": 35,
+
+    "branches": [
+    { "name": "Nasr City", "sales": 25000, "orders": 200 },
+    { "name": "Maadi", "sales": 12000, "orders": 140 }
+    ],
+
+    "salesLabels": ["Sat","Sun","Mon"],
+    "salesData": [12000,15000,18000],
+
+    "branchNames": ["Nasr","Maadi"],
+    "branchSales": [25000,12000],
+
+    "insights": [
+    "⚠️ فرع المعادي أقل 30% من المتوسط",
+    "🔥 فرع مدينة نصر الأعلى أداء"
+    ]
+    }
+    // KPI
+    document.getElementById('totalSales').innerText = data.totalSales;
+    document.getElementById('orders').innerText = data.orders;
+    document.getElementById('avg').innerText = data.avg;
+    document.getElementById('online').innerText = data.online + '%';
+
+    renderBranches(data.branches);
+    renderInsights(data.insights);
+    renderCharts(data);
+    }
+
+    // Branch Table + Heatmap
+    function renderBranches(branches) {
+
+    const table = document.getElementById('branchTable');
+    table.innerHTML = "";
+
+    const max = Math.max(...branches.map(x => x.sales));
+
+    branches.sort((a,b)=> b.sales - a.sales);
+
+    branches.forEach((b,i)=>{
+
+    let ratio = b.sales / max;
+    let color = ratio > 0.7 ? "bg-success" :
+    ratio > 0.4 ? "bg-warning" : "bg-danger";
+
+    table.innerHTML += `
+    <tr>
+    <td>${i+1}</td>
+    <td>${b.name}</td>
+    <td>${b.sales}</td>
+    <td>${b.orders}</td>
+    <td><span class="badge ${color}">${Math.round(ratio*100)}%</span></td>
+    </tr>`;
+    });
+    }
+
+    // Insights
+    function renderInsights(list){
+    const ul = document.getElementById('insights');
+    ul.innerHTML = "";
+    list.forEach(x=>{
+    ul.innerHTML += `<li>${x}</li>`;
+    });
+    }
+
+    // Charts
+    function renderCharts(data){
+
+    if(salesChart) salesChart.destroy();
+    if(branchChart) branchChart.destroy();
+
+    salesChart = new Chart(document.getElementById('salesChart'), {
+    type: 'line',
+    data: {
+    labels: data.salesLabels,
+    datasets: [{
+    label: 'Sales',
+    data: data.salesData
+    }]
+    }
+    });
+
+    branchChart = new Chart(document.getElementById('branchChart'), {
+    type: 'doughnut',
+    data: {
+    labels: data.branchNames,
+    datasets: [{
+    data: data.branchSales
+    }]
+    }
+    });
+    }
+
+    // Auto Refresh
+    setInterval(loadData, 10000);
+
+    // SignalR
+    const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/dashboardHub")
+    .build();
+
+    connection.on("ReceiveDashboard", data => {
+    renderBranches(data.branches);
+    renderInsights(data.insights);
+    });
+
+    connection.start();
+
+    // Init
+    loadData();
+</script>

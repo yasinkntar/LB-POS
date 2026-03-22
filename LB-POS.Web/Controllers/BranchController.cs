@@ -3,12 +3,14 @@ using LB_POS.Core.Features.Brnach.Commands.Models;
 using LB_POS.Core.Features.Brnach.Queries.Models;
 using LB_POS.Data.AppMetaData;
 using LB_POS.Web.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LB_POS.Web.Controllers
 {
     //[Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class BranchController : POSControllerBase
     {
 
@@ -36,8 +38,8 @@ namespace LB_POS.Web.Controllers
             var req = await Mediator.Send(addBranch);
             return NewResult(req);
         }
-        [HttpDelete(Router.BranchRouteing.EditeBranch)]
-        public async Task<IActionResult> DeleteBranch([FromBody] DeleteBranchCommand addBranch)
+        [HttpDelete(Router.BranchRouteing.DeleteBranch)]
+        public async Task<IActionResult> DeleteBranch([FromRoute] DeleteBranchCommand addBranch)
         {
             var req = await Mediator.Send(addBranch);
             return NewResult(req);

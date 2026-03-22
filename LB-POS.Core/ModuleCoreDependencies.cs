@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LB_POS.Core.Base;
 using LB_POS.Core.Behavior;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,11 +11,23 @@ namespace LB_POS.Core
     {
         public static IServiceCollection AddCoreDependencies(this IServiceCollection services)
         {
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+            services.AddLocalization(options =>
+            {
+                options.ResourcesPath = "Resources";
+            });
+
+            services.AddMediatR(cfg =>
+                cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-            // 
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            services.AddScoped<ResponseHandler>();
+
             return services;
         }
     }

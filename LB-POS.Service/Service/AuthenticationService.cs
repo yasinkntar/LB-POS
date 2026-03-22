@@ -53,8 +53,8 @@ namespace LB_POS.Service.Service
             var refreshToken = GetRefreshToken(user.UserName);
             var userRefreshToken = new UserRefreshToken
             {
-                AddedTime = DateTime.Now,
-                ExpiryDate = DateTime.Now.AddDays(_jwtSettings.RefreshTokenExpireDate),
+                AddedTime = DateTime.UtcNow,
+                ExpiryDate = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpireDate),
                 IsUsed = true,
                 IsRevoked = false,
                 JwtId = jwtToken.Id,
@@ -77,8 +77,8 @@ namespace LB_POS.Service.Service
                 _jwtSettings.Issuer,
                 _jwtSettings.Audience,
                 claims,
-                expires: DateTime.Now.AddDays(_jwtSettings.AccessTokenExpireDate),
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtSettings.Secret)), SecurityAlgorithms.HmacSha256Signature));
+                expires: DateTime.UtcNow.AddDays(_jwtSettings.AccessTokenExpireDate),
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)), SecurityAlgorithms.HmacSha256));
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
             return (jwtToken, accessToken);
         }
@@ -87,7 +87,7 @@ namespace LB_POS.Service.Service
         {
             var refreshToken = new RefreshToken
             {
-                ExpireAt = DateTime.Now.AddDays(_jwtSettings.RefreshTokenExpireDate),
+                ExpireAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpireDate),
                 UserName = username,
                 TokenString = GenerateRefreshToken()
             };
@@ -105,11 +105,13 @@ namespace LB_POS.Service.Service
             var roles = await _userManager.GetRolesAsync(user);
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Name,user.UserName),
-                new Claim(ClaimTypes.NameIdentifier,user.UserName),
-                new Claim(ClaimTypes.Email,user.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(nameof(UserClaimModel.UserName), user.UserName),
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(nameof(UserClaimModel.Email), user.Email),
                 new Claim(nameof(UserClaimModel.PhoneNumber), user.PhoneNumber),
-                new Claim(nameof(UserClaimModel.Id), user.Id.ToString())
+                new Claim(nameof(UserClaimModel.Id), user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             foreach (var role in roles)
             {
@@ -126,7 +128,7 @@ namespace LB_POS.Service.Service
             var response = new JwtAuthResult();
             response.AccessToken = newToken;
             var refreshTokenResult = new RefreshToken();
-            refreshTokenResult.UserName = jwtToken.Claims.FirstOrDefault(x => x.Type == nameof(UserClaimModel.UserName)).Value;
+            refreshTokenResult.UserName = jwtToken.Claims.FirstOrDefault(x => x.Type == nameof(UserClaimModel.UserName))?.Value;
             refreshTokenResult.TokenString = refreshToken;
             refreshTokenResult.ExpireAt = (DateTime)expiryDate;
             response.refreshToken = refreshTokenResult;
@@ -152,7 +154,7 @@ namespace LB_POS.Service.Service
                 ValidateIssuer = _jwtSettings.ValidateIssuer,
                 ValidIssuers = new[] { _jwtSettings.Issuer },
                 ValidateIssuerSigningKey = _jwtSettings.ValidateIssuerSigningKey,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtSettings.Secret)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret)),
                 ValidAudience = _jwtSettings.Audience,
                 ValidateAudience = _jwtSettings.ValidateAudience,
                 ValidateLifetime = _jwtSettings.ValidateLifeTime,
@@ -176,7 +178,7 @@ namespace LB_POS.Service.Service
 
         public async Task<(string, DateTime?)> ValidateDetails(JwtSecurityToken jwtToken, string accessToken, string refreshToken)
         {
-            if (jwtToken == null || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256Signature))
+            if (jwtToken == null || jwtToken.Header.Alg != SecurityAlgorithms.HmacSha256)
             {
                 return ("AlgorithmIsWrong", null);
             }
@@ -187,11 +189,20 @@ namespace LB_POS.Service.Service
 
             //Get User
 
-            var userId = jwtToken.Claims.FirstOrDefault(x => x.Type == nameof(UserClaimModel.Id)).Value;
+            var userId = jwtToken.Claims.FirstOrDefault(x => x.Type == nameof(UserClaimModel.Id))?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return ("InvalidToken", null);
+            }
             var userRefreshToken = await _refreshTokenRepository.GetTableNoTracking()
                                              .FirstOrDefaultAsync(x => x.Token == accessToken &&
                                                                      x.RefreshToken == refreshToken &&
                                                                      x.UserId == int.Parse(userId));
+            if (userRefreshToken.JwtId != jwtToken.Id)
+            {
+                return ("InvalidJwtId", null);
+            }
             if (userRefreshToken == null)
             {
                 return ("RefreshTokenIsNotFound", null);
@@ -231,12 +242,8 @@ namespace LB_POS.Service.Service
                     return "UserNotFound";
                 //Generate Random Number
 
-                //Random generator = new Random();
-                //string randomNumber = generator.Next(0, 1000000).ToString("D6");
-                var chars = "0123456789";
-                var random = new Random();
-                var randomNumber = new string(Enumerable.Repeat(chars, 6).Select(s => s[random.Next(s.Length)]).ToArray());
-
+                //using System.Security.Cryptography;
+                var randomNumber = RandomNumberGenerator.GetInt32(0, 1000000).ToString("D6");
                 //update User In Database Code
                 user.Code = randomNumber;
                 var updateResult = await _userManager.UpdateAsync(user);
@@ -257,20 +264,20 @@ namespace LB_POS.Service.Service
 
         public async Task<string> ConfirmResetPassword(string Code, string Email)
         {
-            //Get User
-            //user
             var user = await _userManager.FindByEmailAsync(Email);
-            //user not Exist => not found
-            if (user == null)
-                return "UserNotFound";
-            //Decrept Code From Database User Code
-            var userCode = user.Code;
-            //Equal With Code
-            if (userCode == Code) return "Success";
-            return "Failed";
+            if (user == null) return "UserNotFound";
+
+            if (string.IsNullOrEmpty(user.Code)) return "NoCodeRequested";
+            if (user.Code != Code) return "Failed";
+
+            // إبطال الكود بعد التحقق الناجح
+            user.Code = null;
+            await _userManager.UpdateAsync(user);
+
+            return "Success";
         }
 
-        public async Task<string> ResetPassword(string Email, string Password)
+        public async Task<string> ResetPassword(string Email, string Password, string Code)
         {
             var trans = await _applicationDBContext.Database.BeginTransactionAsync();
             try
@@ -280,6 +287,11 @@ namespace LB_POS.Service.Service
                 //user not Exist => not found
                 if (user == null)
                     return "UserNotFound";
+                if (string.IsNullOrEmpty(user.Code)) return "NoResetCodeRequested";
+
+                var decryptedCode = user.Code;
+                if (decryptedCode != Code) return "InvalidCode";
+
                 await _userManager.RemovePasswordAsync(user);
                 if (!await _userManager.HasPasswordAsync(user))
                 {

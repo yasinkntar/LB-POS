@@ -1,0 +1,76 @@
+﻿@page
+@model LB_POS.Web.Pages.UserManger.CreateUserModel
+@{
+    ViewData["Title"] = "Create User";
+}
+<div class="pos-container">
+    <div class="pos-card">
+
+        <div class="pos-header">
+            <div class="title">
+                <i class="fas fa-user-plus"></i>
+                <span>Create User</span>
+            </div>
+        </div>
+
+        <div class="pos-body">
+
+            <form id="createUserForm">
+
+                <div class="row g-3">
+
+                    <div class="col-12">
+                        <div class="pos-input">
+                            <i class="fas fa-user"></i>
+                            <input asp-for="AddUser.FullName" placeholder="Full Name">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-12">
+                            <div class="pos-input">
+                                <i class="fas fa-envelope"></i>
+                                <input asp-for="AddUser.Email" placeholder="Email">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-12">
+                                <div class="pos-input">
+                                    <i class="fas fa-phone"></i>
+                                    <input asp-for="AddUser.PhoneNumber" placeholder="Phone">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-12">
+                                    <div class="pos-input password-box">
+                                        <i class="fas fa-lock"></i>
+                                        <input asp-for="AddUser.Password" type="password" id="password" placeholder="Password">
+                                            <span class="toggle-pass" data-target="password">
+                                                <i class="fas fa-eye"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 col-12">
+                                        <div class="pos-input password-box">
+                                            <i class="fas fa-lock"></i>
+                                            <input asp-for="AddUser.ConfirmPassword" type="password" id="confirmPassword" placeholder="Confirm Password">
+                                                <span class="toggle-pass" data-target="confirmPassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="pos-actions mt-4">
+                                        <a asp-page="/UserManger/Index" class="btn-cancel">Cancel</a>
+                                        <button type="submit" class="btn-save w-100-mobile">
+                                            <i class="fas fa-save"></i> Save
+                                        </button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>

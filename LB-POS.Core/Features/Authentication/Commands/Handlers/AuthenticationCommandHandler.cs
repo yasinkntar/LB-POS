@@ -14,7 +14,8 @@ namespace LB_POS.Core.Features.Authentication.Commands.Handlers
           IRequestHandler<SignInCommand, Response<JwtAuthResult>>,
           IRequestHandler<RefreshTokenCommand, Response<JwtAuthResult>>,
           IRequestHandler<SendResetPasswordCommand, Response<string>>,
-          IRequestHandler<ResetPasswordCommand, Response<string>>
+          IRequestHandler<ResetPasswordCommand, Response<string>>,
+          IRequestHandler<SignInWithCookieCommand, Response<string>>
     {
 
 
@@ -105,6 +106,27 @@ namespace LB_POS.Core.Features.Authentication.Commands.Handlers
                 case "Success": return Success<string>("");
                 default: return BadRequest<string>(_stringLocalizer[SharedResourcesKeys.InvaildCode]);
             }
+        }
+
+        public async Task<Response<string>> Handle(SignInWithCookieCommand request, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.FindByNameAsync(request.UserName);
+
+            if (user == null)
+                return BadRequest<string>("User not found");
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+
+            if (!result.Succeeded)
+                return BadRequest<string>("Wrong password");
+
+            if (!user.EmailConfirmed)
+                return BadRequest<string>("Email not confirmed");
+
+            // 🔥 هنا الفرق
+            await _signInManager.SignInAsync(user, isPersistent: true);
+
+            return Success("Logged in successfully");
         }
 
         #endregion

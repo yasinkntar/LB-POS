@@ -231,6 +231,9 @@
   <data name="SendEmailFailed" xml:space="preserve">
     <value>Failed to send email</value>
   </data>
+  <data name="Sersch" xml:space="preserve">
+    <value>Sersch ....</value>
+  </data>
   <data name="Success" xml:space="preserve">
     <value>Operation completed successfully</value>
   </data>

@@ -1,0 +1,144 @@
+﻿@page "/Login"
+@model LB_POS.Web.Pages.Auth.LoginModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="ar">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>تسجيل الدخول</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+
+            body {
+                background: #f1f5f9;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: Cairo;
+            }
+
+            .login-card {
+                width: 100%;
+                max-width: 420px;
+                background: white;
+                border-radius: 14px;
+                padding: 30px;
+                box-shadow: 0 15px 40px rgba(0,0,0,.1);
+            }
+
+            .login-logo {
+                font-size: 26px;
+                font-weight: bold;
+                color: #2563eb;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .form-control {
+                border-radius: 10px;
+            }
+
+            .btn-login {
+                border-radius: 10px;
+                font-weight: 600;
+            }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="login-card">
+
+        <div class="login-logo">
+
+            <i class="fas fa-fingerprint"></i>
+
+            
+
+        </div>
+
+        <form method="post">
+
+            <div class="mb-3">
+
+                <label class="form-label">اسم المستخدم</label>
+
+                <div class="input-group">
+
+                    <span class="input-group-text">
+
+                        <i class="fa fa-user"></i>
+
+                    </span>
+
+                    <input asp-for="Input.UserName"
+                           class="form-control"
+                           placeholder="اسم المستخدم" />
+
+                </div>
+
+                <span asp-validation-for="Input.UserName"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">كلمة المرور</label>
+
+                <div class="input-group">
+
+                    <span class="input-group-text">
+
+                        <i class="fa fa-lock"></i>
+
+                    </span>
+
+                    <input asp-for="Input.Password" type="password" class="form-control" placeholder="كلمة المرور" />
+
+                </div>
+
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+
+            </div>
+
+            <div class="form-check mb-3">
+
+                @* <input asp-for="Input.RememberMe" class="form-check-input" /> *@
+
+                <label class="form-check-label">تذكرني </label>
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary w-100 btn-login">
+
+                تسجيل الدخول
+
+            </button>
+
+        </form>
+
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
+<partial name="_ValidationScriptsPartial" />

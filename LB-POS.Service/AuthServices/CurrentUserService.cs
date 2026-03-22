@@ -22,13 +22,15 @@ namespace LB_POS.Service.AuthServices
         #region Functions
         public int GetUserId()
         {
-            var userId = _httpContextAccessor.HttpContext.User.Claims.SingleOrDefault(claim => claim.Type == nameof(UserClaimModel.Id)).Value;
-            if (userId == null)
-            {
-                throw new UnauthorizedAccessException();
-            }
-            return int.Parse(userId);
+            var claim = _httpContextAccessor?.HttpContext?.User?.Claims
+                ?.SingleOrDefault(c => c.Type == nameof(UserClaimModel.Id));
+
+            if (claim == null || string.IsNullOrEmpty(claim.Value))
+                throw new UnauthorizedAccessException("User ID claim not found.");
+
+            return int.Parse(claim.Value);
         }
+
 
         public async Task<User> GetUserAsync()
         {

@@ -18,23 +18,59 @@ namespace LB_POS.Service.Service
         #region Handle Functions
         public async Task<string> UploadImage(string Location, IFormFile file)
         {
-            var path = _webHostEnvironment.WebRootPath + "/" + Location + "/";
-            var extention = Path.GetExtension(file.FileName);
-            var fileName = Guid.NewGuid().ToString().Replace("-", string.Empty) + extention;
+            // تنظيف المسار والتحقق
+            if (string.IsNullOrWhiteSpace(Location) ||
+                Location.Contains("..") ||
+                Path.IsPathRooted(Location))
+            {
+                return "InvalidLocation";
+            }
+
+            // التحقق من امتداد الملف
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(extension))
+            {
+                return "InvalidFileType";
+            }
+
+            // التحقق من حجم الملف (مثلاً: 5 ميجابايت كحد أقصى)
+            if (file.Length > 5 * 1024 * 1024)
+            {
+                return "FileTooLarge";
+            }
+
+            // إنشاء اسم ملف فريد لتجنب الاستبدال
+            var fileName = $"{Guid.NewGuid()}{extension}";
+
+            // تكوين المسار الكامل داخل wwwroot
+            var folderPath = Path.Combine(_webHostEnvironment.WebRootPath, Location);
+            var fullPath = Path.Combine(folderPath, fileName);
+
+            // التأكد أن المسار النهائي لا يزال داخل wwwroot
+            if (!fullPath.StartsWith(_webHostEnvironment.WebRootPath))
+            {
+                return "InvalidLocation";
+            }
+
             if (file.Length > 0)
             {
                 try
                 {
-                    if (!Directory.Exists(path))
+                    // إنشاء المجلد إذا لم يكن موجوداً
+                    if (!Directory.Exists(folderPath))
                     {
-                        Directory.CreateDirectory(path);
+                        Directory.CreateDirectory(folderPath);
                     }
-                    using (FileStream filestreem = File.Create(path + fileName))
+
+                    // حفظ الملف
+                    using (var filestream = new FileStream(fullPath, FileMode.Create))
                     {
-                        await file.CopyToAsync(filestreem);
-                        await filestreem.FlushAsync();
-                        return $"/{Location}/{fileName}";
+                        await file.CopyToAsync(filestream);
                     }
+
+                    // إرجاع المسار بالنسبة للويب
+                    return $"/{Location}/{fileName}".Replace("\\", "/");
                 }
                 catch (Exception)
                 {

@@ -4,6 +4,7 @@ using LB_POS.Service.IService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Web;
 namespace LB_POS.Service.Service
 {
     public class ApplicationUserService : IApplicationUserService
@@ -56,8 +57,8 @@ namespace LB_POS.Service.Service
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 var resquestAccessor = _httpContextAccessor.HttpContext.Request;
                 var returnUrl = resquestAccessor.Scheme + "://" + resquestAccessor.Host + _urlHelper.Action("ConfirmEmail", "Authentication", new { userId = user.Id, code = code });
-                var message = $"To Confirm Email Click Link: <a href='{returnUrl}'>Link Of Confirmation</a>";
-                //$"/Api/V1/Authentication/ConfirmEmail?userId={user.Id}&code={code}";
+                var encodedUrl = HttpUtility.HtmlAttributeEncode(returnUrl);
+                var message = $"To Confirm Email Click Link: <a href='{encodedUrl}'>Link Of Confirmation</a>"; //$"/Api/V1/Authentication/ConfirmEmail?userId={user.Id}&code={code}";
                 //message or body
                 await _emailsService.SendEmail(user.Email, message, "ConFirm Email");
 

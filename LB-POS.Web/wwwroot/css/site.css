@@ -1,22 +1,250 @@
-html {
-  font-size: 14px;
+/* ===============================
+ROOT
+================================= */
+
+:root {
+    --sidebar-width: 260px;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --primary: #2563eb;
+    --primary-soft: rgba(37,99,235,.12);
+    --radius: 14px;
+    --shadow-sm: 0 4px 12px rgba(0,0,0,.05);
+    --shadow-md: 0 10px 28px rgba(0,0,0,.08);
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+/* ===============================
+DARK MODE
+================================= */
+
+[data-theme="dark"] {
+    --bg: #0f172a;
+    --card-bg: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: rgba(255,255,255,.08);
+    --primary-soft: rgba(59,130,246,.25);
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
+/* ===============================
+GLOBAL
+================================= */
 
-html {
-  position: relative;
-  min-height: 100%;
+* {
+    box-sizing: border-box;
+    transition: .25s;
 }
 
 body {
-  margin-bottom: 60px;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Cairo","Segoe UI",sans-serif;
+}
+
+/* ===============================
+LAYOUT
+================================= */
+
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.app-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+/* ===============================
+TOPBAR
+================================= */
+
+.topbar {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+[data-theme="dark"] .topbar {
+    background: rgba(15,23,42,.8);
+}
+
+/* ===============================
+SIDEBAR
+================================= */
+
+.sidebar {
+    width: var(--sidebar-width);
+    background: var(--card-bg);
+    border-inline-end: 1px solid var(--border);
+    padding: 18px;
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+}
+
+    .sidebar .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        color: var(--text);
+        font-weight: 500;
+    }
+
+        .sidebar .nav-link:hover {
+            background: var(--primary-soft);
+        }
+
+        .sidebar .nav-link.active {
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+/* ===============================
+CONTENT
+================================= */
+
+.content {
+    flex: 1;
+    padding: 28px;
+    overflow-x: auto;
+}
+
+.content-wrapper {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    animation: fadeIn .35s ease;
+}
+
+/* ===============================
+BUTTONS
+================================= */
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.btn-light {
+    border: 1px solid var(--border);
+}
+
+    .btn-light:hover {
+        background: var(--primary-soft);
+        color: var(--primary);
+    }
+
+/* ===============================
+TABLE
+================================= */
+
+.table {
+    width: 100%;
+}
+
+    .table thead {
+        background: #1e293b;
+        color: #fff;
+    }
+
+    .table th,
+    .table td {
+        padding: 12px;
+        text-align: center;
+    }
+
+/* ===============================
+SCROLLBAR
+================================= */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+/* ===============================
+ANIMATION
+================================= */
+
+@keyframes fadeIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ===============================
+RESPONSIVE
+================================= */
+
+/* Tablet */
+
+@media (max-width:1199px) {
+
+    .sidebar {
+        width: 220px;
+    }
+
+    .content {
+        padding: 20px;
+    }
+}
+
+/* Mobile */
+
+@media (max-width:991px) {
+
+    .sidebar {
+        display: none;
+    }
+
+    .content {
+        margin: 0;
+        padding: 16px;
+    }
+}
+
+/* Small Mobile */
+
+@media (max-width:576px) {
+
+    .navbar-brand {
+        font-size: 16px;
+    }
+
+    .content {
+        padding: 12px;
+    }
+
+    .btn {
+        font-size: 14px;
+    }
 }

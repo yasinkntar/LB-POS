@@ -1,47 +1,47 @@
-﻿//using Azure;
-using LB_POS.Data.Entities.Identity;
+﻿using LB_POS.Data.Entities.Identity;
 using LB_POS.Data.Helpers;
 using LB_POS.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Net;
 using System.Text;
-using System.Text.Json;
+
 namespace LB_POS.Infrastructure
 {
     public static class ServiceRegisteration
     {
         public static IServiceCollection AddServiceRegisteration(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddIdentity<User, Role>(option =>
+            #region Identity Setup
+            services.AddIdentity<User, Role>(options =>
             {
-                // Password settings.
-                option.Password.RequireDigit = true;
-                option.Password.RequireLowercase = true;
-                option.Password.RequireNonAlphanumeric = true;
-                option.Password.RequireUppercase = true;
-                option.Password.RequiredLength = 6;
-                option.Password.RequiredUniqueChars = 1;
+                // Password settings
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
 
-                // Lockout settings.
-                option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                option.Lockout.MaxFailedAccessAttempts = 5;
-                option.Lockout.AllowedForNewUsers = true;
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
 
-                // User settings.
-                option.User.AllowedUserNameCharacters =
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                option.User.RequireUniqueEmail = true;
-                option.SignIn.RequireConfirmedEmail = true;
+                // User settings
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = true;
+                options.SignIn.RequireConfirmedEmail = true;
 
-            }).AddEntityFrameworkStores<ApplicationDBContext>().AddDefaultTokenProviders();
+            })
+            .AddEntityFrameworkStores<ApplicationDBContext>()
+            .AddDefaultTokenProviders();
+            #endregion
 
-            //JWT Authentication
+            #region JWT Settings
             var jwtSettings = new JwtSettings();
             var emailSettings = new EmailSettings();
             configuration.GetSection(nameof(jwtSettings)).Bind(jwtSettings);
@@ -49,73 +49,57 @@ namespace LB_POS.Infrastructure
 
             services.AddSingleton(jwtSettings);
             services.AddSingleton(emailSettings);
+            #endregion
 
-            services.AddAuthentication(x =>
+            #region Authentication
+
+            services.AddAuthentication(options =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                // Identity Cookie هو الافتراضي
+                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
             })
-           .AddJwtBearer(x =>
-           {
-               x.RequireHttpsMetadata = false;
-               x.SaveToken = true;
-               x.TokenValidationParameters = new TokenValidationParameters
-               {
-                   ValidateIssuer = jwtSettings.ValidateIssuer,
-                   ValidIssuers = new[] { jwtSettings.Issuer },
-                   ValidateIssuerSigningKey = jwtSettings.ValidateIssuerSigningKey,
-                   IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
-                   ValidAudience = jwtSettings.Audience,
-                   ValidateAudience = jwtSettings.ValidateAudience,
-                   ValidateLifetime = jwtSettings.ValidateLifeTime,
-               };
-               x.Events = new JwtBearerEvents
-               {
-                   OnChallenge = async context =>
-                   {
-                       context.HandleResponse();
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.RequireHttpsMetadata = true;
+                options.SaveToken = true;
 
-                       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                       context.Response.ContentType = "application/json";
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = jwtSettings.ValidateIssuer,
+                    ValidIssuers = new[] { jwtSettings.Issuer },
 
-                       var result = new
-                       {
-                           Succeeded = false,
-                           StatusCode = HttpStatusCode.Unauthorized,
-                           Message = "Token is missing or expired"
-                       };
+                    ValidateIssuerSigningKey = jwtSettings.ValidateIssuerSigningKey,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings.Secret)),
 
-                       await context.Response.WriteAsync(JsonSerializer.Serialize(result));
-                   },
-                   OnForbidden = async context =>
-                   {
-                       context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                       context.Response.ContentType = "application/json";
+                    ValidAudience = jwtSettings.Audience,
+                    ValidateAudience = jwtSettings.ValidateAudience,
 
-                       var result = new
-                       {
-                           StatusCode = System.Net.HttpStatusCode.Unauthorized,
-                           Succeeded = true,
-                           Message = "\"You are not allowed to access this resource\""
-                       };
-                       await context.Response.WriteAsync(JsonSerializer.Serialize(result));
-                   }
-               };
+                    ValidateLifetime = jwtSettings.ValidateLifeTime,
+                };
+            });
 
+            #endregion
 
-           });
+            #region Authorization Policies
+            //services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("CreateUser", policy => policy.RequireClaim("CreateUser", "true"));
+            //    options.AddPolicy("DeleteUser", policy => policy.RequireClaim("DeleteUser", "true"));
+            //    options.AddPolicy("UpdateUser", policy => policy.RequireClaim("UpdateUser", "true"));
+            //});
+            #endregion
 
-
-
-            //Swagger Gn
+            #region Swagger + JWT
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "School Project", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "School Project API", Version = "v1" });
                 c.EnableAnnotations();
 
                 c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
                 {
-                    Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer 12345abcdef')",
+                    Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer {token}')",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey,
@@ -123,38 +107,21 @@ namespace LB_POS.Infrastructure
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-            {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = JwtBearerDefaults.AuthenticationScheme
-                }
-            },
-            Array.Empty<string>()
-            }
-           });
-            });
-
-            services.AddAuthorization(option =>
-            {
-                option.AddPolicy("CreateStudent", policy =>
-                {
-                    policy.RequireClaim("Create Student", "True");
-                });
-                option.AddPolicy("DeleteStudent", policy =>
-                {
-                    policy.RequireClaim("Delete Student", "True");
-                });
-                option.AddPolicy("EditStudent", policy =>
-                {
-                    policy.RequireClaim("Edit Student", "True");
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = JwtBearerDefaults.AuthenticationScheme
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
                 });
             });
-
-
+            #endregion
 
             return services;
         }

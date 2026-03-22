@@ -3,11 +3,12 @@ using LB_POS.Core.Features.Authentication.Queries.Models;
 using LB_POS.Data.AppMetaData;
 using LB_POS.Web.Base;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace LB_POS.Web.Controllers
 {
     [ApiController]
-
+    [EnableRateLimiting("auth")]
     public class AuthenticationController : POSControllerBase
     {
 

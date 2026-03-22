@@ -22,8 +22,4 @@
     <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.24" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\ApplicationUser\Queries\Handlers\" />
-  </ItemGroup>
-
 </Project>

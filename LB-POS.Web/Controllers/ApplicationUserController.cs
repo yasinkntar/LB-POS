@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace LB_POS.Web.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Admin,User")]
+    [Authorize()]
     public class ApplicationUserController : POSControllerBase
     {
+
         [HttpPost(Router.ApplicationUserRouting.Create)]
         public async Task<IActionResult> Create([FromBody] AddUserCommand command)
         {
@@ -22,11 +23,13 @@ namespace LB_POS.Web.Controllers
             var response = await Mediator.Send(query);
             return Ok(response);
         }
+
         [HttpGet(Router.ApplicationUserRouting.GetByID)]
         public async Task<IActionResult> GetStudentByID([FromRoute] int id)
         {
             return NewResult(await Mediator.Send(new GetUserByIdQuery(id)));
         }
+
         [HttpPut(Router.ApplicationUserRouting.Edit)]
         public async Task<IActionResult> Edit([FromBody] EditUserCommand command)
         {

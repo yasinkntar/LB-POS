@@ -1,6 +1,7 @@
 ﻿using LB_POS.Data.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace LB_POS.Infrastructure.Seeder
 {
@@ -22,6 +23,7 @@ namespace LB_POS.Infrastructure.Seeder
                 };
                 await _userManager.CreateAsync(defaultuser, "M123_m#$");
                 await _userManager.AddToRoleAsync(defaultuser, "admin");
+                await _userManager.AddClaimAsync(defaultuser, new Claim("Create User", "True"));
             }
         }
     }

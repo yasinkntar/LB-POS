@@ -231,6 +231,9 @@
   <data name="SendEmailFailed" xml:space="preserve">
     <value>فشل في إرسال البريد الإلكتروني</value>
   </data>
+  <data name="Sersch" xml:space="preserve">
+    <value>بحث .....</value>
+  </data>
   <data name="Success" xml:space="preserve">
     <value>تمت العملية بنجاح</value>
   </data>
