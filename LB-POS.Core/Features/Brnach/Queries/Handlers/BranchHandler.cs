@@ -26,7 +26,6 @@ namespace LB_POS.Core.Features.Brnach.Queries.Handlers
         }
 
 
-        public async Task<Response<List<GetBranchListResponse>>> Handle(GetBranchListQuery request, CancellationToken cancellationToken)
         {
             var result = await BranchService.GetAllBranchesAsync();
             var resultmaper = mapper.Map<List<GetBranchListResponse>>(result);
