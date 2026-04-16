@@ -27,7 +27,7 @@ namespace LB_POS.Infrastructure.BaseInfrastructure
         #endregion
 
         #region Actions
-        public virtual async Task<T> GetByIdAsync(Guid id)
+        public virtual async Task<T> GetByIdAsync(int id)
         {
 
             return await _dbContext.Set<T>().FindAsync(id);
@@ -115,7 +115,7 @@ namespace LB_POS.Infrastructure.BaseInfrastructure
 
         public async Task<bool> IsUniqueAsync(
                 Expression<Func<T, bool>> predicate,
-                Guid? excludeId = null,
+                int? excludeId = null,
                 CancellationToken cancellationToken = default)
         {
             var query = _dbContext.Set<T>().AsNoTracking().Where(predicate);

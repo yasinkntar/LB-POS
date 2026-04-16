@@ -5,6 +5,6 @@ namespace LB_POS.Core.Features.Brnach.Commands.Models
 {
     public class DeleteBranchCommand : IRequest<Response<string>>
     {
-        public Guid ID { get; set; }
+        public int ID { get; set; }
     }
 }

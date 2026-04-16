@@ -1,0 +1,307 @@
+﻿@page "/Branches/Create"
+@using System.Text.Json
+@using LB_POS.Core.Resources
+@using Microsoft.Extensions.Localization
+@model LB_POS.Web.Pages.Branches.CreateBranchModel
+
+@{
+    ViewData["Title"] = L[SharedResourcesKeys.AddBranch];
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+}
+@inject IStringLocalizer<SharedResources> L
+
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h4 class="mb-1 fw-bold text-primary">
+            <i class="fas fa-plus-circle @(isRtl ? "ms-2" : "me-2")"></i>@L[SharedResourcesKeys.AddBranch]
+        </h4>
+        <p class="text-muted small mb-0">@L[SharedResourcesKeys.AddBranchDesc]</p>
+    </div>
+    <div class="col-md-6 d-flex justify-content-md-end mt-3 mt-md-0">
+        <a asp-page="Index" class="btn btn-outline-secondary px-4 shadow-sm d-flex align-items-center rounded-pill">
+            <i class="fas @(isRtl ? "fa-arrow-right ms-2" : "fa-arrow-left me-2")"></i> @L[SharedResourcesKeys.BackToList]
+        </a>
+    </div>
+</div>
+
+<form method="post" class="needs-validation" novalidate>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 shadow-sm border-0 mb-4"></div>
+
+    <div class="row g-4">
+        @* القسم العام *@
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white py-3">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-info-circle mx-2"></i>@L[SharedResourcesKeys.General]</h6>
+                </div>
+                <div class="card-body p-4 bg-white">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <label asp-for="Command.Code" class="form-label fw-bold small text-muted">@L[SharedResourcesKeys.BranchCode]</label>
+                            <input asp-for="Command.Code" class="form-control bg-light border-0" placeholder="@L[SharedResourcesKeys.EnterBranchCode]">
+                                <span asp-validation-for="Command.Code" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Command.ActivityCode" class="form-label fw-bold small text-muted">@L[SharedResourcesKeys.ActivityCode]</label>
+                                <input asp-for="Command.ActivityCode" class="form-control bg-light border-0" placeholder="@L[SharedResourcesKeys.EnterActivityCode]">
+                                    <span asp-validation-for="Command.ActivityCode" class="text-danger small mt-1 d-block"></span>
+                                </div>
+                                <div class="col-md-4">
+                                    <label asp-for="Command.SyndicateLicenseNumber" class="form-label fw-bold small text-muted">@L[SharedResourcesKeys.SyndicateLicenseNumber]</label>
+                                    <input asp-for="Command.SyndicateLicenseNumber" class="form-control bg-light border-0">
+                                        <span asp-validation-for="Command.SyndicateLicenseNumber" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Command.Name" class="form-label fw-bold small text-muted">@L[SharedResourcesKeys.BranchNameAr]</label>
+                                        <input asp-for="Command.Name" class="form-control bg-light border-0">
+                                            <span asp-validation-for="Command.Name" class="text-danger small mt-1 d-block"></span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label asp-for="Command.NameEn" class="form-label fw-bold small text-muted">@L[SharedResourcesKeys.BranchNameEn]</label>
+                                            <input asp-for="Command.NameEn" class="form-control bg-light border-0 text-start" dir="ltr">
+                                                <span asp-validation-for="Command.NameEn" class="text-danger small mt-1 d-block"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @* العنوان بالعربي *@
+                            <div class="col-lg-6">
+                                <div class="card border-0 shadow-sm rounded-4 h-100">
+                                    <div class="card-header bg-light py-3 border-bottom">
+                                        <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-map-marker-alt mx-2"></i>@L["العنوان (بالعربي)"]</h6>
+                                    </div>
+                                    <div class="card-body p-4 bg-white">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label asp-for="Command.Country" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.Country]</label>
+                                                <select  id="countrySelect" class="form-select bg-light border-0">
+                                                    <option value="">@L["اختر الدولة"]</option>
+                                                </select>
+                                                                                                        <input asp-for="Command.Country" id="countryValue" type="hidden" class="form-control bg-light border-0">
+                                                <span asp-validation-for="Command.Country" class="text-danger small"></span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label asp-for="Command.Governate" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.Governate]</label>
+                                                <select asp-for="Command.Governate" id="governateSelect" class="form-select bg-light border-0" disabled>
+                                                    <option value="">@L["اختر المحافظة"]</option>
+                                                </select>
+                                                <span asp-validation-for="Command.Governate" class="text-danger small"></span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label asp-for="Command.RegionCity" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.RegionCity]</label>
+                                                <select asp-for="Command.RegionCity" id="regionSelect" class="form-select bg-light border-0" disabled>
+                                                    <option value="">@L["اختر المنطقة"]</option>
+                                                </select>
+                                                <span asp-validation-for="Command.RegionCity" class="text-danger small"></span>
+                                            </div>
+                                                <div class="col-md-6">
+                                                    <label asp-for="Command.PostalCode" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.PostalCode]</label>
+                                                    <input asp-for="Command.PostalCode" id="sourcePostcode" class="form-control bg-light border-0">
+                                                        <span asp-validation-for="Command.PostalCode" class="text-danger small"></span>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label asp-for="Command.Street" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.Street]</label>
+                                                        <input asp-for="Command.Street" id="sourceStreet" class="form-control bg-light border-0">
+                                                            <span asp-validation-for="Command.Street" class="text-danger small"></span>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label asp-for="Command.BuildingNumber" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.BuildingNumber]</label>
+                                                            <input asp-for="Command.BuildingNumber" id="sourceBuilding" class="form-control bg-light border-0">
+                                                                <span asp-validation-for="Command.BuildingNumber" class="text-danger small"></span>
+                                                            </div>
+                                                        <div class="col-md-4">
+                                                                <label asp-for="Command.Floor" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.floor]</label>
+                                                            <input asp-for="Command.Floor" id="sourceFloor" class="form-control bg-light border-0">
+                                                                </div>
+                                                        <div class="col-md-4">
+                                                                    <label asp-for="Command.Room" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.Room]</label>
+                                                                <input asp-for="Command.Room" id="sourceRoom" class="form-control bg-light border-0">
+                                                                    </div>
+                                                                           <div class="col-md-12">
+                                                                    <label asp-for="Command.Landmark" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.Landmark]</label>
+                                                        <input asp-for="Command.Landmark" id="sourceLandmark" class="form-control bg-light border-0">
+                                                            <span asp-validation-for="Command.Landmark" class="text-danger small"></span>
+                                                        </div>
+<div class="col-md-12">
+                                                                        <label asp-for="Command.AdditionalInformation" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.AdditionalInformation]</label>
+                                                                        <input asp-for="Command.AdditionalInformation" id="sourceAdditionalInformation" class="form-control bg-light border-0">
+                                                                            <span asp-validation-for="Command.AdditionalInformation" class="text-danger small"></span>
+                                                        </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    @* العنوان بالإنجليزي *@
+                                                    <div class="col-lg-6">
+                                                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                                                            <div class="card-header bg-light py-3 border-bottom">
+                                                                <h6 class="mb-0 text-primary fw-bold"><i class="fas fa-globe mx-2"></i>@L["Address (English)"]</h6>
+                                                            </div>
+                                                            <div class="card-body p-4 bg-white">
+                                                                <div class="row g-3">
+                                                                    <div class="col-md-6">
+                                                                                <label class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.Country]</label>
+                                                                        <input id="countryEn" readonly class="form-control bg-light border-0 shadow-none">
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <label asp-for="Command.GovernateEn" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.Governate]</label>
+                                                                        <input asp-for="Command.GovernateEn" id="governateEn" readonly class="form-control bg-light border-0">
+                                                                        </div>
+                                                                    <div class="col-md-6">
+                                                                        <label asp-for="Command.RegionCityEn" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.RegionCity]</label>
+                                                                        <input asp-for="Command.RegionCityEn" id="destRegion" readonly class="form-control bg-light border-0">
+                                                                        </div>
+                                                                            <div class="col-md-6">
+                                                                                <label asp-for="Command.PostalCodeEn" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.PostalCode]</label>
+                                                                                <input asp-for="Command.PostalCodeEn" id="destPostcode" class="form-control bg-light border-0" readonly>
+                                                                                </div>
+                                                                                <div class="col-md-12">
+                                                                                    <label asp-for="Command.StreetEn" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.Street]</label>
+                                                                                    <input asp-for="Command.StreetEn" id="destStreet" class="form-control bg-light border-0" >
+                                                                                    </div>
+                                                                                <div class="col-md-4">
+                                                                                    <label asp-for="Command.BuildingNumberEn" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.BuildingNumber]</label>
+                                                                                    <input asp-for="Command.BuildingNumberEn" id="destBuilding" readonly class="form-control bg-light border-0">
+                                                                                        <span asp-validation-for="Command.BuildingNumberEn" class="text-danger small"></span>
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        <label asp-for="Command.FloorEn" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.floor]</label>
+                                                                                        <input asp-for="Command.FloorEn" id="destFloor" class="form-control bg-light border-0">
+                                                                                        </div>
+                                                                                        <div class="col-md-4">
+                                                                                            <label asp-for="Command.RoomEn" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.Room]</label>
+                                                                                            <input asp-for="Command.RoomEn" id="destRoom" class="form-control bg-light border-0">
+                                                                                            </div>
+                                                                                                    <div class="col-md-12">
+                                                                                                        <label asp-for="Command.LandmarkEn" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.Landmark]</label>
+                                                                                                        <input asp-for="Command.LandmarkEn" id="destLandmark" class="form-control bg-light border-0">
+                                                                                                            <span asp-validation-for="Command.LandmarkEn" class="text-danger small"></span>
+                                                                                                        </div>
+                                                                                                        <div class="col-md-12">
+                                                                                                            <label asp-for="Command.AdditionalInformationEn" class="form-label small fw-bold text-muted">@L[SharedResourcesKeys.AdditionalInformation]</label>
+                                                                                                            <input asp-for="Command.AdditionalInformationEn" id="destAdditionalInformation" class="form-control bg-light border-0">
+                                                                                                                <span asp-validation-for="Command.AdditionalInformationEn" class="text-danger small"></span>
+                                                                                                            </div>
+                                                               
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        @* الأزرار *@
+                                                                        <div class="col-12 mt-4 mb-5">
+                                                                            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                                                                                <div class="d-flex justify-content-end gap-3">
+                                                                                    <a asp-page="Index" class="btn btn-light border px-4 rounded-pill">@L[SharedResourcesKeys.Reset]</a>
+                                                                                    <button type="submit" class="btn btn-primary px-5 shadow-sm rounded-pill">
+                                                                                        <i class="fas fa-save mx-2"></i> @L[SharedResourcesKeys.SaveChanges]
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+
+                                                            @section Scripts {
+                                                                <partial name="_ValidationScriptsPartial" />
+
+                                                                <script>
+                                                                    document.addEventListener("DOMContentLoaded", function () {
+                                                                        const countriesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Countries));
+
+                                                                        const countrySelect = document.getElementById('countrySelect');
+                                                                        const governateSelect = document.getElementById('governateSelect');
+                                                                        const regionSelect = document.getElementById('regionSelect');
+                                                                                                                            const countryValue = document.getElementById('countryValue');
+                            
+                                                                        const countryEn = document.getElementById('countryEn');
+                                                                        const governateEn = document.getElementById('governateEn');
+                                                                        const regionEn = document.getElementById('destRegion');
+
+                                                                        // 1. تعبئة الدول
+                                                                        countriesData.forEach(country => {
+                                                                            countrySelect.add(new Option(country.name_ar, country.id));
+                                                                        });
+
+                                                                        // 2. عند اختيار الدولة -> تعبئة المحافظات
+                                                                        countrySelect.addEventListener('change', function () {
+                                                                            const countryId = parseInt(this.value);
+                                                                            const countryObj = countriesData.find(c => c.id === countryId);
+                                                                                                     
+                                                                            governateSelect.innerHTML = '<option value="">@L["اختر المحافظة"]</option>';
+                                                                            regionSelect.innerHTML = '<option value="">@L["اختر المنطقة"]</option>';
+                                                                            governateSelect.disabled = regionSelect.disabled = true;
+                                                                            governateEn.value = regionEn.value = "";
+
+                                                                            if (countryObj) {
+                                                                                countryEn.value = countryObj.name_en;
+                                                                                                               countryValue.value = countryObj.ISOCode;
+                                                                                governateSelect.disabled = false;
+                                                                                countryObj.governorates.forEach(gov => {
+                                                                                    let opt = new Option(gov.name_ar, gov.name_ar); // نرسل الاسم العربي
+                                                                                    opt.dataset.nameEn = gov.name_en;
+                                                                                    opt.dataset.govId = gov.id; // نحتاج المعرف لجلب المناطق
+                                                                                    governateSelect.add(opt);
+                                                                                });
+                                                                            } else {
+                                                                                countryEn.value = "";
+                                                                            }
+                                                                        });
+
+                                                                        // 3. عند اختيار المحافظة -> تعبئة المناطق
+                                                                        governateSelect.addEventListener('change', function () {
+                                                                            const selectedGovOption = this.options[this.selectedIndex];
+                                                                            const countryId = parseInt(countrySelect.value);
+                                                                            const countryObj = countriesData.find(c => c.id === countryId);
+                
+                                                                            regionSelect.innerHTML = '<option value="">@L["اختر المنطقة"]</option>';
+                                                                            regionEn.value = "";
+
+                                                                            if (selectedGovOption.value && countryObj) {
+                                                                                governateEn.value = selectedGovOption.dataset.nameEn;
+                                                                                regionSelect.disabled = false;
+
+                                                                                // البحث عن المحافظة المختارة داخل الدولة
+                                                                                const govObj = countryObj.governorates.find(g => g.name_ar === selectedGovOption.value);
+                    
+                                                                                if (govObj && govObj.subregions) {
+                                                                                    govObj.subregions.forEach(sub => {
+                                                                                        let opt = new Option(sub.name_ar, sub.name_ar);
+                                                                                        opt.dataset.nameEn = sub.name_en;
+                                                                                        regionSelect.add(opt);
+                                                                                    });
+                                                                                }
+                                                                            } else {
+                                                                                governateEn.value = "";
+                                                                                regionSelect.disabled = true;
+                                                                            }
+                                                                        });
+
+                                                                        // 4. عند اختيار المنطقة -> تحديث الاسم الإنجليزي
+                                                                        regionSelect.addEventListener('change', function () {
+                                                                            const selectedOpt = this.options[this.selectedIndex];
+                                                                            regionEn.value = selectedOpt.value ? selectedOpt.dataset.nameEn : "";
+                                                                        });
+
+                                                                        // مزامنة بقية الحقول النصية (الرمز البريدي، الشارع، المبنى)
+                                                                        function setupSync(srcId, destId) {
+                                                                            const src = document.getElementById(srcId);
+                                                                            const dest = document.getElementById(destId);
+                                                                            if (src && dest) {
+                                                                                src.addEventListener('input', () => { dest.value = src.value; });
+                                                                            }
+                                                                        }
+
+                                                                        setupSync('sourcePostcode', 'destPostcode');
+                                                                        setupSync('sourceStreet', 'destStreet');
+                                                                        setupSync('sourceBuilding', 'destBuilding');
+                                                                        setupSync('sourceFloor', 'destFloor');
+                                                                        setupSync('sourceRoom', 'destRoom');
+                                                                                                            setupSync('sourceAdditionalInformation', 'destAdditionalInformation');
+                                                                                                                                    setupSync('sourceLandmark', 'destLandmark');
+                                                                    });
+                                                                </script>
+                                                            }

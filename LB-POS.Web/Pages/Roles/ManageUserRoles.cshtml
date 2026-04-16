@@ -1,0 +1,186 @@
+﻿@page "{userId:int}"
+@using LB_POS.Core.Resources
+@using Microsoft.Extensions.Localization
+@model LB_POS.Web.Pages.Roles.ManageUserRolesModel
+
+@inject IStringLocalizer<SharedResources> L
+
+@{
+    ViewData["Title"] = L[SharedResourcesKeys.ManageUserRoles];
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+}
+
+<div class="content-wrapper">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-7">
+            <h4 class="mb-1 fw-bold text-primary">
+                <i class="fas fa-user-shield @(isRtl ? "ms-2" : "me-2")"></i>
+                @L[SharedResourcesKeys.ManageUserRoles]
+            </h4>
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item">
+                        <a href="/" class="text-decoration-none text-muted">
+                            @L["Home"]
+                        </a>
+                    </li>
+
+                    <li class="breadcrumb-item">
+                        <a asp-page="/UserManger/Index" class="text-decoration-none text-muted">
+                            @L[SharedResourcesKeys.UsersManagement]
+                        </a>
+                    </li>
+
+                    <li class="breadcrumb-item active text-primary fw-bold">
+                        @L[SharedResourcesKeys.UserRolesFor, Model.UserName]
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <div class="col-md-5 d-flex justify-content-md-end gap-2 mt-3 mt-md-0">
+            <a asp-page="/UserManger/Index" class="btn btn-light-soft border shadow-sm px-3">
+                <i class="fas @(isRtl ? "fa-arrow-left" : "fa-arrow-right") me-1 ms-1"></i>
+                @L[SharedResourcesKeys.BackToUsers]
+            </a>
+        </div>
+    </div>
+
+    <!-- User Info -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary-soft border-primary-soft">
+        <div class="card-body p-3 d-flex align-items-center">
+            <div class="user-avatar-styled @(isRtl ? "ms-3" : "me-3") shadow-sm">
+                @Model.UserName[0].ToString().ToUpper()
+            </div>
+            <div>
+                <h6 class="mb-0 fw-bold text-primary">@Model.UserName</h6>
+                <small class="text-muted">
+                    @L[SharedResourcesKeys.ManageUserRolesDesc]
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <form method="post">
+        <input type="hidden" asp-for="UserRolesManage.UserId" />
+        <input type="hidden" asp-for="UserRolesManage.FullName" />
+
+        <!-- Roles -->
+        <div class="row g-3">
+            @for (int i = 0; i < Model.UserRolesManage.userRoles.Count; i++)
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                    <label class="role-selection-card w-100 h-100" for="role_@i">
+                        <div class="card h-100 border shadow-sm role-card p-3">
+                            <div class="d-flex align-items-center justify-content-between">
+
+                                <div class="d-flex align-items-center">
+                                    <div class="role-icon-box @(isRtl ? "ms-3" : "me-3")">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+
+                                    <div class="user-info">
+                                        <h6 class="mb-0 fw-bold role-name">
+                                            @Model.UserRolesManage.userRoles[i].Name
+                                        </h6>
+
+                                        <input type="hidden"
+                                               asp-for="UserRolesManage.userRoles[i].Name" />
+                                    </div>
+                                </div>
+
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input custom-switch"
+                                           type="checkbox"
+                                           asp-for="UserRolesManage.userRoles[i].HasRole"
+                                           id="role_@i">
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                }
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-5 pt-4 border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-exclamation-triangle text-warning me-1 ms-1"></i>
+                    @L[SharedResourcesKeys.ReviewRolesWarning]
+                </p>
+
+                <button type="submit"
+                        class="btn btn-primary px-5 py-2 shadow shadow-sm rounded-3 fw-bold">
+                    <i class="fas fa-save me-2 ms-2"></i>
+                    @L[SharedResourcesKeys.SaveRolesChanges]
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        .role-selection-card {
+            cursor: pointer;
+        }
+
+        .role-card {
+            transition: all 0.3s ease;
+            border-radius: 15px !important;
+            border: 2px solid transparent !important;
+            background: var(--card-bg);
+        }
+
+        .role-selection-card:has(.custom-switch:checked) .role-card {
+            background-color: var(--primary-soft) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .role-selection-card:hover .role-card {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md) !important;
+        }
+
+        .role-icon-box {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--neutral-soft);
+            color: var(--text-muted);
+            margin: 0 5px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .role-selection-card:has(.custom-switch:checked) .role-icon-box {
+            background: var(--primary);
+            color: white;
+        }
+
+        .custom-switch {
+            width: 2.8rem !important;
+            height: 1.4rem !important;
+            cursor: pointer;
+        }
+
+            .custom-switch:checked {
+                background-color: var(--primary) !important;
+                border-color: var(--primary) !important;
+            }
+
+        .user-avatar-styled {
+            width: 45px;
+            height: 45px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>

@@ -2,14 +2,14 @@
 {
     public class GetBranchListResponse
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         public required string Code { get; set; }
 
         public required string Name { get; set; }
         public required string FullAddressc { get; set; }
 
-        public required BranchAddressResponse Address { get; set; }
+        //public required BranchAddressResponse Address { get; set; }
         public string? SyndicateLicenseNumber { get; set; }
 
         public required string ActivityCode { get; set; }

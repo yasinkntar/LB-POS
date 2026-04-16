@@ -1,0 +1,136 @@
+﻿@page "{roleId:int}"
+@model LB_POS.Web.Pages.Roles.ManageRoleClaimsModel
+@{
+    ViewData["Title"] = "إدارة صلاحيات الدور";
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+}
+
+<div class="content-wrapper">
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+        <div>
+            <h4 class="mb-1 fw-bold text-primary">
+                <i class="fas fa-shield-alt me-2 ms-2"></i> صلاحيات الدور: <span class="text-dark">@Model.RoleName</span>
+            </h4>
+            <p class="text-muted small mb-0">قم بتخصيص الوصول لجميع أقسام النظام</p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="form-check form-switch bg-light-soft px-3 py-2 rounded-3 border">
+                <input class="form-check-input me-2 ms-2" type="checkbox" id="globalSelectAll">
+                <label class="form-check-label fw-bold text-primary small" for="globalSelectAll">تحديد الكل (النظام)</label>
+            </div>
+            <button type="button" onclick="document.getElementById('saveForm').submit()" class="btn btn-primary shadow-sm px-4">
+                <i class="fas fa-save me-2 ms-2"></i> حفظ التغييرات
+            </button>
+        </div>
+    </div>
+
+    <form method="post" id="saveForm">
+        <input type="hidden" asp-for="RoleClaimsManage.RoleId" />
+
+        <div class="row g-4">
+            @* تجميع الصلاحيات حسب القسم وعرض كل قسم في بطاقة منفصلة *@
+            @{
+                var groupedClaims = Model.RoleClaimsManage.RoleClaims
+                                    .Select((c, i) => new { Claim = c, Index = i })
+                                    .GroupBy(x => x.Claim.GroupName);
+            }
+
+            @foreach (var group in groupedClaims)
+            {
+                var groupName = group.Key ?? "عام";
+                var groupId = groupName.Replace(" ", "");
+                <div class="col-xl-6 col-lg-12">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden role-group-card">
+                        <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle-sm bg-primary-soft text-primary me-3 ms-3">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <h6 class="mb-0 fw-bold text-dark">@groupName</h6>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input group-select-all" type="checkbox" data-group="@groupId">
+                                <label class="small text-muted fw-medium me-1 ms-1">الكل</label>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-0">
+                            <table class="table table-hover align-middle mb-0">
+                                <tbody>
+                                    @foreach (var item in group)
+                                    {
+                                        <tr class="claim-row border-top">
+                                            <td class="ps-4 py-3">
+                                                <div class="user-info">
+                                                    <span class="fw-medium text-dark-emphasis">@item.Claim.DisplayName</span>
+                                                    <input type="hidden" asp-for="RoleClaimsManage.RoleClaims[item.Index].Type" />
+                                                    <input type="hidden" asp-for="RoleClaimsManage.RoleClaims[item.Index].GroupName" />
+                                                    <input type="hidden" asp-for="RoleClaimsManage.RoleClaims[item.Index].DisplayName" />
+                                                </div>
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                <div class="form-check form-switch d-inline-block">
+                                                    <input class="form-check-input custom-switch claim-checkbox"
+                                                           type="checkbox"
+                                                           data-group-target="@groupId"
+                                                           asp-for="RoleClaimsManage.RoleClaims[item.Index].Value">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </form>
+    </div>
+    @section Scripts {
+        <script>
+            $(document).ready(function () {
+                // 1. منطق "تحديد الكل" للنظام بالكامل
+                $('#globalSelectAll').on('change', function () {
+                    const isChecked = $(this).is(':checked');
+                    $('.claim-checkbox, .group-select-all').prop('checked', isChecked).trigger('change-logic');
+                });
+
+                // 2. منطق "تحديد الكل" لقسم معين
+                $('.group-select-all').on('change', function () {
+                    const groupName = $(this).data('group');
+                    const isChecked = $(this).is(':checked');
+                    $(`.claim-checkbox[data-group-target="${groupName}"]`).prop('checked', isChecked);
+                    updateGlobalState();
+                });
+
+                // 3. تحديث حالة الـ Group Switch عند تغيير صلاحية واحدة يدوياً
+                $('.claim-checkbox').on('change', function () {
+                    const groupName = $(this).data('group-target');
+                    const allInGroup = $(`.claim-checkbox[data-group-target="${groupName}"]`);
+                    const checkedInGroup = $(`.claim-checkbox[data-group-target="${groupName}"]:checked`);
+                
+                    // تحديث مفتاح القسم
+                    $(`.group-select-all[data-group="${groupName}"]`).prop('checked', allInGroup.length === checkedInGroup.length);
+                
+                    updateGlobalState();
+                });
+
+                // دالة لتحديث حالة مفتاح "النظام بالكامل"
+                function updateGlobalState() {
+                    const allCheckboxes = $('.claim-checkbox');
+                    const allChecked = $('.claim-checkbox:checked');
+                    $('#globalSelectAll').prop('checked', allCheckboxes.length === allChecked.length);
+                }
+
+                // تشغيل التحقق عند تحميل الصفحة لأول مرة (Initial State)
+                $('.group-select-all').each(function() {
+                    const groupName = $(this).data('group');
+                    const allInGroup = $(`.claim-checkbox[data-group-target="${groupName}"]`);
+                    const checkedInGroup = $(`.claim-checkbox[data-group-target="${groupName}"]:checked`);
+                    $(this).prop('checked', allInGroup.length === checkedInGroup.length && allInGroup.length > 0);
+                });
+                updateGlobalState();
+            });
+        </script>
+    }

@@ -3,7 +3,6 @@ using LB_POS.Core.Features.Authorization.Commands.Models;
 using LB_POS.Core.Resources;
 using LB_POS.Service.IService;
 using MediatR;
-
 using Microsoft.Extensions.Localization;
 
 namespace LB_POS.Core.Features.Authorization.Commands.Handlers
@@ -12,61 +11,88 @@ namespace LB_POS.Core.Features.Authorization.Commands.Handlers
            IRequestHandler<AddRoleCommand, Response<string>>,
            IRequestHandler<EditRoleCommand, Response<string>>,
            IRequestHandler<DeleteRoleCommand, Response<string>>,
-           IRequestHandler<UpdateUserRolesCommand, Response<string>>
+           IRequestHandler<UpdateUserRolesCommand, Response<string>>,
+    IRequestHandler<UpdateRoleClaimsCommand, Response<string>>
     {
-        #region MyRegion
-        private readonly IStringLocalizer<SharedResources> _stringLocalizer;
+        #region Fields
+        private readonly IStringLocalizer<SharedResources> _localizer;
         private readonly IAuthorizationService _authorizationService;
-
         #endregion
-        #region MyRegion
-        public RoleCommandHandler(IStringLocalizer<SharedResources> stringLocalizer,
-                                  IAuthorizationService authorizationService) : base(stringLocalizer)
+
+        #region Constructors
+        public RoleCommandHandler(
+            IStringLocalizer<SharedResources> localizer,
+            IAuthorizationService authorizationService) : base(localizer)
         {
-            _stringLocalizer = stringLocalizer;
+            _localizer = localizer;
             _authorizationService = authorizationService;
         }
-
         #endregion
-        #region MyRegion
+
+        #region Command Handlers
         public async Task<Response<string>> Handle(AddRoleCommand request, CancellationToken cancellationToken)
         {
             var result = await _authorizationService.AddRoleAsync(request.RoleName);
-            if (result == "Success") return Success("");
-            return BadRequest<string>(_stringLocalizer[SharedResourcesKeys.AddFailed]);
+
+            // استخدام مقارنة غير حساسة لحالة الأحرف لتجنب أخطاء الـ Magic Strings
+            if (result.Equals("Success", StringComparison.OrdinalIgnoreCase))
+                return Success((string)_localizer[SharedResourcesKeys.Success]);
+
+            return BadRequest<string>(_localizer[SharedResourcesKeys.AddFailed]);
         }
 
         public async Task<Response<string>> Handle(EditRoleCommand request, CancellationToken cancellationToken)
         {
             var result = await _authorizationService.EditRoleAsync(request);
-            if (result == "notFound") return NotFound<string>();
-            else if (result == "Success") return Success((string)_stringLocalizer[SharedResourcesKeys.Updated]);
-            else
-                return BadRequest<string>(result);
+
+            // استخدام Switch Expression (C# 8+) لكود أنظف وأسهل في القراءة
+            return result switch
+            {
+                "notFound" or "NotFound" => NotFound<string>(),
+                "Success" => Success((string)_localizer[SharedResourcesKeys.Updated]),
+                _ => BadRequest<string>(result)
+            };
         }
 
         public async Task<Response<string>> Handle(DeleteRoleCommand request, CancellationToken cancellationToken)
         {
             var result = await _authorizationService.DeleteRoleAsync(request.Id);
-            if (result == "NotFound") return NotFound<string>();
-            else if (result == "Used") return BadRequest<string>(_stringLocalizer[SharedResourcesKeys.RoleIsUsed]);
-            else if (result == "Success") return Success((string)_stringLocalizer[SharedResourcesKeys.Deleted]);
-            else
-                return BadRequest<string>(result);
+
+            return result switch
+            {
+                "NotFound" or "notFound" => NotFound<string>(),
+                "Used" => BadRequest<string>(_localizer[SharedResourcesKeys.RoleIsUsed]),
+                "Success" => Success((string)_localizer[SharedResourcesKeys.Deleted]),
+                _ => BadRequest<string>(result)
+            };
         }
+
         public async Task<Response<string>> Handle(UpdateUserRolesCommand request, CancellationToken cancellationToken)
         {
             var result = await _authorizationService.UpdateUserRoles(request);
-            switch (result)
+
+            return result switch
             {
-                case "UserIsNull": return NotFound<string>(_stringLocalizer[SharedResourcesKeys.UserIsNotFound]);
-                case "FailedToRemoveOldRoles": return BadRequest<string>(_stringLocalizer[SharedResourcesKeys.FailedToRemoveOldRoles]);
-                case "FailedToAddNewRoles": return BadRequest<string>(_stringLocalizer[SharedResourcesKeys.FailedToAddNewRoles]);
-                case "FailedToUpdateUserRoles": return BadRequest<string>(_stringLocalizer[SharedResourcesKeys.FailedToUpdateUserRoles]);
-            }
-            return Success<string>(_stringLocalizer[SharedResourcesKeys.Success]);
+                "UserIsNull" => NotFound<string>(_localizer[SharedResourcesKeys.UserIsNotFound]),
+                "FailedToRemoveOldRoles" => BadRequest<string>(_localizer[SharedResourcesKeys.FailedToRemoveOldRoles]),
+                "FailedToAddNewRoles" => BadRequest<string>(_localizer[SharedResourcesKeys.FailedToAddNewRoles]),
+                "FailedToUpdateUserRoles" => BadRequest<string>(_localizer[SharedResourcesKeys.FailedToUpdateUserRoles]),
+                "Success" => Success<string>(_localizer[SharedResourcesKeys.Success]),
+                _ => Success<string>(_localizer[SharedResourcesKeys.Success]) // Default fallback
+            };
         }
         #endregion
+        public async Task<Response<string>> Handle(UpdateRoleClaimsCommand request, CancellationToken cancellationToken)
+        {
+            var result = await _authorizationService.UpdateRoleClaims(request);
 
+            return result switch
+            {
+                "Success" => Success((string)_localizer[SharedResourcesKeys.Updated]),
+                "RoleNotFound" => NotFound<string>(_localizer[SharedResourcesKeys.NotFound]),
+                "FailedToUpdateRoleClaims" => BadRequest<string>(_localizer[SharedResourcesKeys.NotFound]),
+                _ => BadRequest<string>(result)
+            };
+        }
     }
 }

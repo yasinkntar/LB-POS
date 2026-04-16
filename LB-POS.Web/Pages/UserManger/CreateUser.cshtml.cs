@@ -1,10 +1,13 @@
+using LB_POS.Core.Behavior;
 using LB_POS.Core.Features.ApplicationUser.Commands.Models;
+using LB_POS.Data.Helpers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace LB_POS.Web.Pages.UserManger
 {
+    [HasPermission(Permission.UserManger.CreateUser)]
     public class CreateUserModel : PageModel
     {
         private readonly IMediator _mediator;

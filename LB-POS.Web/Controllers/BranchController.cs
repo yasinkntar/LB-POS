@@ -14,14 +14,8 @@ namespace LB_POS.Web.Controllers
     public class BranchController : POSControllerBase
     {
 
-        [HttpGet(Router.BranchRouteing.GetListBranch)]
-        public async Task<IActionResult> GetBranchListAsync()
-        {
-            var req = await Mediator.Send(new GetBranchListQuery());
-            return NewResult(req);
-        }
         [HttpGet(Router.BranchRouteing.GetByID)]
-        public async Task<IActionResult> GetBranchByIDAsync([FromRoute] Guid ID)
+        public async Task<IActionResult> GetBranchByIDAsync([FromRoute] int ID)
         {
             var req = await Mediator.Send(new GetBranchByIDQuery() { ID = ID });
             return NewResult(req);
@@ -45,7 +39,7 @@ namespace LB_POS.Web.Controllers
             return NewResult(req);
         }
         [HttpGet(Router.BranchRouteing.PaginatedBranch)]
-        public async Task<IActionResult> Paginated([FromQuery] GetStudentPaginatedListQuery query)
+        public async Task<IActionResult> Paginated([FromQuery] GetBrnachPaginatedListQuery query)
         {
             var response = await Mediator.Send(query);
             return Ok(response);

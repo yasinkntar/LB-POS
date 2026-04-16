@@ -63,7 +63,7 @@ namespace LB_POS.Service.Service
             return await _repository.GetBranchesAsync();
         }
 
-        public async Task<Branch> GetBrancheByIDAsync(Guid ID)
+        public async Task<Branch> GetBrancheByIDAsync(int ID)
         {
             return await _repository.GetByIdAsync(ID);
         }
@@ -73,7 +73,7 @@ namespace LB_POS.Service.Service
             return _repository.GetTableNoTracking().AsQueryable();
         }
 
-        public async Task<bool> IsUniqueAsync(Expression<Func<Branch, bool>> predicate, Guid? excludeId = null, CancellationToken cancellationToken = default)
+        public async Task<bool> IsUniqueAsync(Expression<Func<Branch, bool>> predicate, int? excludeId = null, CancellationToken cancellationToken = default)
         {
             return await _repository.IsUniqueAsync(predicate, excludeId, cancellationToken);
         }

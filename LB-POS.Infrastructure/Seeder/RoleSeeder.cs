@@ -1,6 +1,5 @@
 ﻿using LB_POS.Data.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace LB_POS.Infrastructure.Seeder
 {
@@ -8,20 +7,32 @@ namespace LB_POS.Infrastructure.Seeder
     {
         public static async Task SeedAsync(RoleManager<Role> _roleManager)
         {
-            var rolesCount = await _roleManager.Roles.CountAsync();
-            if (rolesCount <= 0)
+            if (!await _roleManager.RoleExistsAsync("SuperAdmin"))
             {
+                var superAdminRole = new Role { Name = "SuperAdmin" };
+                await _roleManager.CreateAsync(superAdminRole);
+                // SuperAdmin يعمل كل شيء، مش محتاج Claims
+            }
 
-                await _roleManager.CreateAsync(new Role()
-                {
-                    Name = "Admin"
-                });
-                await _roleManager.CreateAsync(new Role()
-                {
-                    Name = "User"
-                });
+            if (!await _roleManager.RoleExistsAsync("Admin"))
+            {
+                var adminRole = new Role { Name = "Admin" };
+                await _roleManager.CreateAsync(adminRole);
+
+                // إضافة بعض الصلاحيات للـ Admin Role
+                // await _roleManager.AddClaimAsync(adminRole, new Claim("Permission", Permission.UserManger.CreateUser));
+                //  await _roleManager.AddClaimAsync(adminRole, new Claim("Permission", Permission.UserManger.UpdateUser));
+                //   await _roleManager.AddClaimAsync(adminRole, new Claim("Permission", Permission.UserManger.ViewUser));
+            }
+
+            if (!await _roleManager.RoleExistsAsync("User"))
+            {
+                var userRole = new Role { Name = "User" };
+                await _roleManager.CreateAsync(userRole);
+
+                // أقل صلاحيات ممكنة
+                //  await _roleManager.AddClaimAsync(userRole, new Claim("Permission", Permission.UserManger.ViewUser));
             }
         }
-
     }
 }

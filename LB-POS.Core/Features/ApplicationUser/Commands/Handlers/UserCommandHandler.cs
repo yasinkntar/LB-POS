@@ -89,26 +89,46 @@ namespace LB_POS.Core.Features.ApplicationUser.Commands.Handlers
 
         public async Task<Response<string>> Handle(EditUserCommand request, CancellationToken cancellationToken)
         {
-            //check if user is exist
+            // 1. التأكد من وجود المستخدم
             var oldUser = await _userManager.FindByIdAsync(request.Id.ToString());
-            //if Not Exist notfound
             if (oldUser == null) return NotFound<string>();
-            //mapping
-            var newUser = _mapper.Map(request, oldUser);
 
-            //if username is Exist
-            var userByUserName = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == newUser.UserName && x.Id != newUser.Id);
-            //username is Exist
-            if (userByUserName != null) return BadRequest<string>(_sharedResources[SharedResourcesKeys.UserNameIsExist]);
+            // 2. التحقق من أن اسم المستخدم الجديد غير محجوز لمستخدم آخر
+            var userByUserName = await _userManager.Users
+                .FirstOrDefaultAsync(x => x.UserName == request.UserName && x.Id != oldUser.Id);
 
-            //update
-            var result = await _userManager.UpdateAsync(newUser);
-            //result is not success
-            if (!result.Succeeded) return BadRequest<string>(_sharedResources[SharedResourcesKeys.UpdateFailed]);
-            //message
+            if (userByUserName != null)
+                return BadRequest<string>(_sharedResources[SharedResourcesKeys.UserNameIsExist]);
+
+            // 3. عمل Mapping للبيانات الأساسية (FullName, Email, PhoneNumber, etc.)
+            // ملاحظة: تأكد أن المابنج لا يقوم بنسخ حقل كلمة المرور بشكل تلقائي للـ PasswordHash
+            _mapper.Map(request, oldUser);
+
+            // 4. تحديث البيانات الأساسية للمستخدم
+            var result = await _userManager.UpdateAsync(oldUser);
+            if (!result.Succeeded)
+                return BadRequest<string>(_sharedResources[SharedResourcesKeys.UpdateFailed]);
+
+            // 5. منطق تغيير كلمة المرور (فقط إذا تم إرسال كلمة مرور جديدة)
+            if (!string.IsNullOrWhiteSpace(request.Password))
+            {
+                // إزالة كلمة المرور القديمة (بدون الحاجة لمعرفة القديمة، بما أنك Admin)
+                await _userManager.RemovePasswordAsync(oldUser);
+
+                // إضافة كلمة المرور الجديدة
+                var addPasswordResult = await _userManager.AddPasswordAsync(oldUser, request.Password);
+
+                if (!addPasswordResult.Succeeded)
+                {
+                    // في حال فشلت (مثلاً بسبب شروط تعقيد كلمة المرور)
+                    var error = string.Join(", ", addPasswordResult.Errors.Select(e => e.Description));
+                    return BadRequest<string>(error);
+                }
+            }
+
+            // 6. رسالة النجاح
             return Success((string)_sharedResources[SharedResourcesKeys.Updated]);
         }
-
 
     }
 }

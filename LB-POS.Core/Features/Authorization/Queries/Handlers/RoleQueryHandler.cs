@@ -3,6 +3,7 @@ using LB_POS.Core.Base;
 using LB_POS.Core.Features.Authorization.Queries.Models;
 using LB_POS.Core.Features.Authorization.Queries.Results;
 using LB_POS.Core.Resources;
+using LB_POS.Data.DTOs;
 using LB_POS.Data.Entities.Identity;
 using LB_POS.Data.Results;
 using LB_POS.Service.IService;
@@ -15,7 +16,9 @@ namespace LB_POS.Core.Features.Authorization.Queries.Handlers
     public class RoleQueryHandler : ResponseHandler,
           IRequestHandler<GetRolesListQuery, Response<List<GetRolesListResult>>>,
           IRequestHandler<GetRoleByIdQuery, Response<GetRoleByIdResult>>,
-          IRequestHandler<ManageUserRolesQuery, Response<ManageUserRolesResult>>
+
+          IRequestHandler<ManageUserRolesQuery, Response<ManageUserRolesResult>>,
+          IRequestHandler<GetManageRoleClaimsQuery, Response<ManageRoleClaimsResult>>
     {
         #region Fields
         private readonly IAuthorizationService _authorizationService;
@@ -57,6 +60,20 @@ namespace LB_POS.Core.Features.Authorization.Queries.Handlers
             if (user == null) return NotFound<ManageUserRolesResult>(_stringLocalizer[SharedResourcesKeys.UserIsNotFound]);
             var result = await _authorizationService.ManageUserRolesData(user);
             return Success(result);
+        }
+
+        public async Task<Response<ManageRoleClaimsResult>> Handle(GetManageRoleClaimsQuery request, CancellationToken cancellationToken)
+        {
+            // استدعاء الدالة التي صممناها سابقاً في السيرفس
+            var result = await _authorizationService.ManageRoleClaimsData(request.RoleId);
+
+            if (result == null)
+                return NotFound<ManageRoleClaimsResult>(_stringLocalizer[SharedResourcesKeys.NotFound]);
+
+            // جلب اسم الدور لوضعه في الرسالة (اختياري لتحسين UI)
+            var role = await _authorizationService.GetRoleById(request.RoleId);
+
+            return Success(result, role?.Name); // نرسل النتيجة مع اسم الدور في خانة Message
         }
         #endregion
     }

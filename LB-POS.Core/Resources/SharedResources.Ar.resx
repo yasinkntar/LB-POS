@@ -135,6 +135,9 @@
   <data name="Created" xml:space="preserve">
     <value>تم الإنشاء بنجاح</value>
   </data>
+  <data name="CreateUser" xml:space="preserve">
+    <value>إنشاء مستخدم جديد</value>
+  </data>
   <data name="Deleted" xml:space="preserve">
     <value>تم الحذف بنجاح</value>
   </data>
@@ -272,5 +275,242 @@
   </data>
   <data name="UserNameIsNotExist" xml:space="preserve">
     <value>اسم المستخدم غير موجود</value>
+  </data>
+  <data name="CreateUserDesc" xml:space="preserve">
+    <value>قم بتعبئة البيانات التالية لإضافة موظف جديد للنظام</value>
+  </data>
+  <data name="BackToList" xml:space="preserve">
+    <value>العودة للقائمة</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>الاسم الكامل</value>
+  </data>
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>رقم الهاتف</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>تأكيد كلمة المرور</value>
+  </data>
+  <data name="EnterFullName" xml:space="preserve">
+    <value>أدخل الاسم الثلاثي</value>
+  </data>
+  <data name="EnterUserName" xml:space="preserve">
+    <value>مثال: ahmed_pos</value>
+  </data>
+  <data name="EnterEmail" xml:space="preserve">
+    <value>email@example.com</value>
+  </data>
+  <data name="EnterPhone" xml:space="preserve">
+    <value>05xxxxxxxx</value>
+  </data>
+  <data name="SaveUser" xml:space="preserve">
+    <value>حفظ بيانات المستخدم</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>إعادة تعيين</value>
+  </data>
+  <data name="EditUser" xml:space="preserve">
+    <value>تعديل بيانات المستخدم</value>
+  </data>
+  <data name="EditUserDesc" xml:space="preserve">
+    <value>تحديث المعلومات الأساسية والصلاحيات للمستخدم</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>حفظ التغييرات</value>
+  </data>
+  <data name="LeavePasswordEmpty" xml:space="preserve">
+    <value>اترك حقل كلمة المرور فارغاً إذا كنت لا ترغب في تغييرها</value>
+  </data>
+  <data name="UsersManagement" xml:space="preserve">
+    <value>إدارة المستخدمين</value>
+  </data>
+  <data name="UsersCount" xml:space="preserve">
+    <value>مستخدم {0} مسجل في النظام</value>
+  </data>
+  <data name="AddUser" xml:space="preserve">
+    <value>إضافة مستخدم</value>
+  </data>
+  <data name="NoUsers" xml:space="preserve">
+    <value>لا يوجد مستخدمين لعرضهم</value>
+  </data>
+  <data name="NoEmail" xml:space="preserve">
+    <value>لا يوجد بريد</value>
+  </data>
+  <data name="NoName" xml:space="preserve">
+    <value>مستخدم بدون اسم</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>العمليات</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>السابق</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>التالي</value>
+  </data>
+  <data name="Showing" xml:space="preserve">
+    <value>عرض من</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>هل أنت متأكد من حذف المستخدم؟</value>
+  </data>
+  <data name="ShowingRange" xml:space="preserve">
+    <value>عرض من {0} إلى {1} من أصل {2}</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>تسديل الدخول</value>
+  </data>
+  <data name="RoleUser" xml:space="preserve">
+    <value>دور المستخدم</value>
+  </data>
+  <data name="UserPermissions" xml:space="preserve">
+    <value>صلاحيات المستخدم </value>
+  </data>
+  <data name="ManageUserRoles" xml:space="preserve">
+    <value>إدارة أدوار المستخدم</value>
+  </data>
+  <data name="ManageUserRolesDesc" xml:space="preserve">
+    <value>قم بتحديد الأدوار الوظيفية لهذا المستخدم في النظام</value>
+  </data>
+  <data name="UserRolesFor" xml:space="preserve">
+    <value>أدوار المستخدم: {0}</value>
+  </data>
+  <data name="BackToUsers" xml:space="preserve">
+    <value>العودة للمستخدمين</value>
+  </data>
+  <data name="ReviewRolesWarning" xml:space="preserve">
+    <value>تأكد من مراجعة الصلاحيات المرتبطة بكل دور قبل عملية الحفظ</value>
+  </data>
+  <data name="SaveRolesChanges" xml:space="preserve">
+    <value>حفظ تغييرات الأدوار</value>
+  </data>
+  <data name="SelectedRolesCount" xml:space="preserve">
+    <value>تم اختيار {0} دور</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>مفعل</value>
+  </data>
+  <data name="Inactive" xml:space="preserve">
+    <value>غير مفعل</value>
+  </data>
+  <data name="ManageUserClaims" xml:space="preserve">
+    <value>إدارة صلاحيات المستخدم</value>
+  </data>
+  <data name="ManageUserClaimsDesc" xml:space="preserve">
+    <value>قم بتخصيص الوصول لجميع أقسام النظام</value>
+  </data>
+  <data name="UserClaimsFor" xml:space="preserve">
+    <value>صلاحيات المستخدم: {0}</value>
+  </data>
+  <data name="SelectAllSystem" xml:space="preserve">
+    <value>تحديد الكل (النظام)</value>
+  </data>
+  <data name="SelectAllGroup" xml:space="preserve">
+    <value>الكل</value>
+  </data>
+  <data name="SavePermissionsChanges" xml:space="preserve">
+    <value>حفظ التغييرات</value>
+  </data>
+  <data name="General" xml:space="preserve">
+    <value>عام</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>ملاحظة</value>
+  </data>
+  <data name="BranchesManagement" xml:space="preserve">
+    <value>إدارة الفروع</value>
+  </data>
+  <data name="AddBranch" xml:space="preserve">
+    <value>إضافة فرع جديد</value>
+  </data>
+  <data name="AddBranchDesc" xml:space="preserve">
+    <value>أدخل بيانات الفرع الجغرافية وبيانات الترخيص لربطه بالنظام</value>
+  </data>
+  <data name="EditBranch" xml:space="preserve">
+    <value>تعديل بيانات الفرع</value>
+  </data>
+  <data name="BranchCode" xml:space="preserve">
+    <value>كود الفرع</value>
+  </data>
+  <data name="BranchNameAr" xml:space="preserve">
+    <value>اسم الفرع (بالعربي)</value>
+  </data>
+  <data name="BranchNameEn" xml:space="preserve">
+    <value>اسم الفرع (بالإنجليزي)</value>
+  </data>
+  <data name="ActivityCode" xml:space="preserve">
+    <value>كود النشاط</value>
+  </data>
+  <data name="SyndicateLicenseNumber" xml:space="preserve">
+    <value>رقم ترخيص النقابة</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>الدولة</value>
+  </data>
+  <data name="Governate" xml:space="preserve">
+    <value>المحافظة</value>
+  </data>
+  <data name="RegionCity" xml:space="preserve">
+    <value>المنطقة / المدينة</value>
+  </data>
+  <data name="Street" xml:space="preserve">
+    <value>الشارع</value>
+  </data>
+  <data name="BuildingNumber" xml:space="preserve">
+    <value>رقم المبنى</value>
+  </data>
+  <data name="PostalCode" xml:space="preserve">
+    <value>الرمز البريدي</value>
+  </data>
+  <data name="Landmark" xml:space="preserve">
+    <value>علامة مميزة</value>
+  </data>
+  <data name="EnterBranchCode" xml:space="preserve">
+    <value>مثال: BR-001</value>
+  </data>
+  <data name="EnterActivityCode" xml:space="preserve">
+    <value>أدخل كود النشاط التجاري</value>
+  </data>
+  <data name="NoBranches" xml:space="preserve">
+    <value>لا توجد فروع مسجلة حالياً</value>
+  </data>
+  <data name="BranchDetails" xml:space="preserve">
+    <value>تفاصيل الفرع</value>
+  </data>
+  <data name="Placeholder" xml:space="preserve">
+    <value>ابحث</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>تصفية</value>
+  </data>
+  <data name="Branch" xml:space="preserve">
+    <value>فرع</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>العنوان</value>
+  </data>
+  <data name="NoBranchesFound" xml:space="preserve">
+    <value>لايوجد فروع مسجلة </value>
+  </data>
+  <data name="TO" xml:space="preserve">
+    <value>إلى </value>
+  </data>
+  <data name="InfoBisc" xml:space="preserve">
+    <value>البيانات الأساسية</value>
+  </data>
+  <data name="floor" xml:space="preserve">
+    <value>الطابق</value>
+  </data>
+  <data name="AdditionalInformation" xml:space="preserve">
+    <value>معلومات إضافية</value>
+  </data>
+  <data name="Room" xml:space="preserve">
+    <value>الغرفة / محل</value>
   </data>
 </root>

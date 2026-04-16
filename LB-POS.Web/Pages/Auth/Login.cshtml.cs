@@ -41,7 +41,7 @@ namespace LB_POS.Web.Pages.Auth
         }
         public async Task<IActionResult> OnPost()
         {
-            var result = await Mediator.Send(new SignInWithCookieCommand
+            var result = await _mediator.Send(new SignInWithCookieCommand
             {
                 UserName = Input.UserName,
                 Password = Input.Password

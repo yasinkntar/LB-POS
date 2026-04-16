@@ -15,5 +15,8 @@ namespace LB_POS.Data.Entities.Identity
         public string? Code { get; set; }
         [InverseProperty(nameof(UserRefreshToken.user))]
         public virtual ICollection<UserRefreshToken> UserRefreshTokens { get; set; }
+        public ICollection<UserBranch> UserBranches { get; set; }
+        public Driver Driver { get; set; }
+        public Waiter Waiter { get; set; }
     }
 }

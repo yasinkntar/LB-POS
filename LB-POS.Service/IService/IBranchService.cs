@@ -7,15 +7,12 @@ namespace LB_POS.Service.IService
     public interface IBranchService
     {
         Task<List<Branch>> GetAllBranchesAsync();
-        Task<Branch> GetBrancheByIDAsync(Guid ID);
+        Task<Branch> GetBrancheByIDAsync(int ID);
         Task<string> AddAsync(Branch branch);
         Task<string> EditAsync(Branch branch);
         Task<string> DeleteAsync(Branch ID);
-        Task<bool> IsUniqueAsync(Expression<Func<Branch, bool>> predicate, Guid? excludeId = null, CancellationToken cancellationToken = default);
+        Task<bool> IsUniqueAsync(Expression<Func<Branch, bool>> predicate, int? excludeId = null, CancellationToken cancellationToken = default);
         public IQueryable<Branch> GetBranchQuerable();
-        //public IQueryable<Branch> GetBranchByDepartmentIDQuerable(int DID);
         public IQueryable<Branch> FilterBranchPaginatedQuerable(BranchOrderingEnum orderingEnum, string search);
-
-
     }
 }

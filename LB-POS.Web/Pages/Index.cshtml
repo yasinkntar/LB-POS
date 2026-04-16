@@ -1,239 +1,329 @@
 ﻿@page
+@using LB_POS.Core.Resources
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> L
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = L["لوحة التحكم"];
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+    var userName = User.Identity?.Name ?? "Admin";
 }
+@* 
+<style>
+    /* تنسيقات الـ Breadcrumb */
+    .custom-breadcrumb {
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+    }
+    .custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+        content: "\f104"; /* سهم لليسار يناسب الـ RTL */
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        padding: 0 10px;
+        color: #94a3b8;
+    }
+    .custom-breadcrumb .breadcrumb-item a {
+        color: #64748b;
+        transition: color 0.3s ease;
+    }
+    .custom-breadcrumb .breadcrumb-item a:hover {
+        color: #2563eb;
+    }
+</style> *@
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+@* <div class="container-fluid mb-3 mt-2">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb custom-breadcrumb bg-white p-3 rounded-3 shadow-sm mb-0">
+            <li class="breadcrumb-item">
+                <a href="/" class="text-decoration-none fw-semibold">
+                    <i class="fas fa-home me-1 ms-1 text-primary"></i> @L["الرئيسية"]
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <span class="fw-bold text-dark">@ViewData["Title"]</span>
+            </li>
+        </ol>
+    </nav>
+    </div> *@
 
-<div class="container-fluid py-4">
+<div class="dashboard-container container-fluid">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 mt-4">
+        <div>
+            <h3 class="fw-bold text-primary mb-1">@L["مرحباً بك مجدداً"]، @userName! 👋</h3>
+            <p class="text-muted small mb-0">@L["إليك ملخص سريع لأداء النظام اليوم"].</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-light border shadow-sm">
+                <i class="fas fa-calendar-alt me-2 ms-2"></i> @DateTime.Now.ToString("dd MMM, yyyy")
+            </button>
+            <button class="btn btn-primary shadow-sm">
+                <i class="fas fa-download me-2 ms-2"></i> @L["تحميل التقرير"]
+            </button>
+        </div>
+    </div>
 
-    <!-- 🔥 Filters -->
-    <div class="card shadow-sm border-0 rounded-4 mb-4 p-3">
-        <div class="row g-2">
-            <div class="col-md-3">
-                <select id="branchFilter" class="form-select">
-                    <option value="">All Branches</option>
-                </select>
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="content-wrapper h-100 border-0 shadow-sm position-relative overflow-hidden bg-white p-3 rounded-3">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-primary-soft text-primary p-3 rounded-circle">
+                        <i class="fas fa-shopping-cart fa-lg"></i>
+                    </div>
+                    <div class="ms-3 me-3">
+                        <p class="text-muted small mb-1">@L["إجمالي المبيعات"]</p>
+                        <h4 class="fw-bold mb-0">$12,450</h4>
+                    </div>
+                </div>
+                <div class="mt-3 small">
+                    <span class="text-success fw-bold"><i class="fas fa-arrow-up me-1"></i> 12%</span>
+                    <span class="text-muted ms-1">@L["منذ الشهر الماضي"]</span>
+                </div>
             </div>
-            <div class="col-md-3">
-                <input type="date" id="fromDate" class="form-control">
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="content-wrapper h-100 border-0 shadow-sm bg-white p-3 rounded-3">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-success-soft text-success p-3 rounded-circle">
+                        <i class="fas fa-users fa-lg"></i>
+                    </div>
+                    <div class="ms-3 me-3">
+                        <p class="text-muted small mb-1">@L["المستخدمين النشطين"]</p>
+                        <h4 class="fw-bold mb-0">1,284</h4>
+                    </div>
+                </div>
+                <div class="mt-3 small">
+                    <span class="text-success fw-bold"><i class="fas fa-arrow-up me-1"></i> 5.3%</span>
+                    <span class="text-muted ms-1">@L["مستخدمين جدد"]</span>
+                </div>
             </div>
-            <div class="col-md-3">
-                <input type="date" id="toDate" class="form-control">
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="content-wrapper h-100 border-0 shadow-sm bg-white p-3 rounded-3">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-warning-soft text-warning p-3 rounded-circle">
+                        <i class="fas fa-box fa-lg"></i>
+                    </div>
+                    <div class="ms-3 me-3">
+                        <p class="text-muted small mb-1">@L["الطلبات المعلقة"]</p>
+                        <h4 class="fw-bold mb-0">45</h4>
+                    </div>
+                </div>
+                <div class="mt-3 small">
+                    <span class="text-danger fw-bold"><i class="fas fa-arrow-down me-1"></i> 2%</span>
+                    <span class="text-muted ms-1">@L["أقل من الأمس"]</span>
+                </div>
             </div>
-            <div class="col-md-3">
-                <select id="typeFilter" class="form-select">
-                    <option value="">All Orders</option>
-                    <option value="online">Online</option>
-                    <option value="store">In-Store</option>
-                </select>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="content-wrapper h-100 border-0 shadow-sm bg-white p-3 rounded-3">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-danger-soft text-danger p-3 rounded-circle">
+                        <i class="fas fa-chart-line fa-lg"></i>
+                    </div>
+                    <div class="ms-3 me-3">
+                        <p class="text-muted small mb-1">@L["معدل النمو"]</p>
+                        <h4 class="fw-bold mb-0">24%</h4>
+                    </div>
+                </div>
+                <div class="mt-3 small">
+                    <span class="text-success fw-bold"><i class="fas fa-arrow-up me-1"></i> 8%</span>
+                    <span class="text-muted ms-1">@L["تحسن ملحوظ"]</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 🔥 KPI -->
-    <div class="row g-3 mb-4">
-
-        <div class="col-md-3">
-            <div class="card shadow border-0 rounded-4 p-3">
-                <h6>Total Sales</h6>
-                <h3 id="totalSales">0</h3>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card shadow border-0 rounded-4 p-3">
-                <h6>Orders</h6>
-                <h3 id="orders">0</h3>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card shadow border-0 rounded-4 p-3">
-                <h6>Avg Ticket</h6>
-                <h3 id="avg">0</h3>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card shadow border-0 rounded-4 p-3">
-                <h6>Online %</h6>
-                <h3 id="online">0%</h3>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- 🔥 Charts -->
-    <div class="row g-3 mb-4">
-
+    <div class="row g-4 mb-4">
         <div class="col-lg-8">
-            <div class="card shadow border-0 rounded-4 p-3">
-                <h6>Sales Trend</h6>
-                <canvas id="salesChart"></canvas>
+            <div class="content-wrapper border-0 shadow-sm h-100 bg-white p-4 rounded-3">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">@L["آخر العمليات"]</h5>
+                    <a asp-page="/Sales/Index" class="btn btn-sm btn-light text-primary fw-bold">@L["عرض الكل"]</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle border-bottom">
+                        <thead class="text-muted small bg-light">
+                            <tr>
+                                <th class="py-3 border-0 rounded-start">@L["العميل"]</th>
+                                <th class="py-3 border-0">@L["التاريخ"]</th>
+                                <th class="py-3 border-0">@L["المبلغ"]</th>
+                                <th class="py-3 border-0 rounded-end">@L["الحالة"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="py-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle me-2 ms-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                            <i class="fas fa-user small text-secondary"></i>
+                                        </div>
+                                        <span class="fw-semibold">أحمد محمد</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted small py-3">2026-03-30</td>
+                                <td class="fw-bold py-3">$240.00</td>
+                                <td class="py-3"><span class="badge bg-success bg-opacity-10 text-success px-2 py-1 rounded-pill">@L["مكتمل"]</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle me-2 ms-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                            <i class="fas fa-user small text-secondary"></i>
+                                        </div>
+                                        <span class="fw-semibold">سارة علي</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted small py-3">2026-03-29</td>
+                                <td class="fw-bold py-3">$1,100.00</td>
+                                <td class="py-3"><span class="badge bg-warning bg-opacity-10 text-warning px-2 py-1 rounded-pill">@L["قيد الانتظار"]</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="card shadow border-0 rounded-4 p-3">
-                <h6>Branches</h6>
-                <canvas id="branchChart"></canvas>
+            <div class="content-wrapper border-0 shadow-sm h-100 bg-white p-4 rounded-3">
+                <h5 class="fw-bold mb-4">@L["إجراءات سريعة"]</h5>
+                <div class="d-grid gap-3">
+                    <a asp-page="/Sales/Create" class="btn btn-outline-light border text-dark text-start p-3 rounded-3 shadow-sm hover-shadow transition">
+                        <i class="fas fa-plus-circle text-primary me-2 ms-2 fa-lg"></i> @L["فاتورة مبيعات جديدة"]
+                    </a>
+                    <a asp-page="/Inventory/Add" class="btn btn-outline-light border text-dark text-start p-3 rounded-3 shadow-sm hover-shadow transition">
+                        <i class="fas fa-box-open text-success me-2 ms-2 fa-lg"></i> @L["إضافة منتج للمخزن"]
+                    </a>
+                    <a asp-page="/Users/CreateUser" class="btn btn-outline-light border text-dark text-start p-3 rounded-3 shadow-sm hover-shadow transition">
+                        <i class="fas fa-user-plus text-warning me-2 ms-2 fa-lg"></i> @L["إنشاء حساب مستخدم"]
+                    </a>
+                </div>
+
+                <div class="mt-4 p-3 rounded-4 bg-primary bg-opacity-10 border border-primary border-opacity-25">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-shield-alt fa-2x text-primary"></i>
+                        <div class="ms-3 me-3">
+                            <h6 class="fw-bold mb-1 text-primary">@L["حماية النظام"]</h6>
+                            <p class="small text-primary mb-0 opacity-75">@L["آخر فحص أمني منذ ساعتين"]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8">
+            <div class="content-wrapper border-0 shadow-sm h-100 bg-white p-4 rounded-3">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">@L["تحليل المبيعات الأسبوعي"]</h5>
+                    <select class="form-select form-select-sm shadow-none w-auto bg-light border-0">
+                        <option>@L["آخر 7 أيام"]</option>
+                        <option>@L["آخر شهر"]</option>
+                    </select>
+                </div>
+                <div style="height: 300px;">
+                    <canvas id="salesChart"></canvas>
+                </div>
             </div>
         </div>
 
-    </div>
-
-    <!-- 🔥 Branch Table -->
-    <div class="card shadow border-0 rounded-4 mb-4">
-        <div class="card-header bg-white">
-            <h6>Branches Ranking</h6>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table text-center align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Branch</th>
-                        <th>Sales</th>
-                        <th>Orders</th>
-                        <th>Performance</th>
-                    </tr>
-                </thead>
-                <tbody id="branchTable"></tbody>
-            </table>
+        <div class="col-lg-4">
+            <div class="content-wrapper border-0 shadow-sm h-100 bg-white p-4 rounded-3">
+                <h5 class="fw-bold mb-4">@L["توزيع المبيعات"]</h5>
+                <div style="height: 250px;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="mt-3 small text-muted text-center">
+                    <i class="fas fa-info-circle me-1"></i> @L["أكثر الفئات مبيعاً هذا الشهر"]
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- 🔥 AI Insights -->
-    <div class="card shadow border-0 rounded-4 p-3">
-        <h6>AI Insights</h6>
-        <ul id="insights"></ul>
-    </div>
-
 </div>
-<script>
-    let salesChart, branchChart;
 
-    // Load Data
-    async function loadData() {
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const getChartColors = () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            return {
+                grid: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                text: isDark ? '#94a3b8' : '#64748b',
+                primary: '#3b82f6',
+                secondary: '#10b981'
+            };
+        };
 
-    // const res = await fetch('/api/dashboard');
-    const data = {
-    "totalSales": 125000,
-    "orders": 1200,
-    "avg": 104,
-    "online": 35,
+        let salesChart, categoryChart;
 
-    "branches": [
-    { "name": "Nasr City", "sales": 25000, "orders": 200 },
-    { "name": "Maadi", "sales": 12000, "orders": 140 }
-    ],
+        const initCharts = () => {
+            const colors = getChartColors();
+            
+            // --- Sales Line Chart ---
+            const ctxSales = document.getElementById('salesChart').getContext('2d');
+            salesChart = new Chart(ctxSales, {
+                type: 'line',
+                data: {
+                    labels: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                    datasets: [{
+                        label: '@L["المبيعات"]',
+                        data: [1200, 1900, 1500, 2500, 2200, 3000, 2800],
+                        borderColor: colors.primary,
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: colors.grid }, ticks: { color: colors.text } },
+                        x: { grid: { display: false }, ticks: { color: colors.text } }
+                    }
+                }
+            });
 
-    "salesLabels": ["Sat","Sun","Mon"],
-    "salesData": [12000,15000,18000],
+            // --- Category Doughnut Chart ---
+            const ctxCat = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(ctxCat, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Electronics', 'Grocery', 'Fashion'],
+                    datasets: [{
+                        data: [45, 30, 25],
+                        backgroundColor: [colors.primary, colors.secondary, '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: colors.text, usePointStyle: true, padding: 20 } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        };
 
-    "branchNames": ["Nasr","Maadi"],
-    "branchSales": [25000,12000],
+        document.addEventListener('DOMContentLoaded', initCharts);
 
-    "insights": [
-    "⚠️ فرع المعادي أقل 30% من المتوسط",
-    "🔥 فرع مدينة نصر الأعلى أداء"
-    ]
-    }
-    // KPI
-    document.getElementById('totalSales').innerText = data.totalSales;
-    document.getElementById('orders').innerText = data.orders;
-    document.getElementById('avg').innerText = data.avg;
-    document.getElementById('online').innerText = data.online + '%';
-
-    renderBranches(data.branches);
-    renderInsights(data.insights);
-    renderCharts(data);
-    }
-
-    // Branch Table + Heatmap
-    function renderBranches(branches) {
-
-    const table = document.getElementById('branchTable');
-    table.innerHTML = "";
-
-    const max = Math.max(...branches.map(x => x.sales));
-
-    branches.sort((a,b)=> b.sales - a.sales);
-
-    branches.forEach((b,i)=>{
-
-    let ratio = b.sales / max;
-    let color = ratio > 0.7 ? "bg-success" :
-    ratio > 0.4 ? "bg-warning" : "bg-danger";
-
-    table.innerHTML += `
-    <tr>
-    <td>${i+1}</td>
-    <td>${b.name}</td>
-    <td>${b.sales}</td>
-    <td>${b.orders}</td>
-    <td><span class="badge ${color}">${Math.round(ratio*100)}%</span></td>
-    </tr>`;
-    });
-    }
-
-    // Insights
-    function renderInsights(list){
-    const ul = document.getElementById('insights');
-    ul.innerHTML = "";
-    list.forEach(x=>{
-    ul.innerHTML += `<li>${x}</li>`;
-    });
-    }
-
-    // Charts
-    function renderCharts(data){
-
-    if(salesChart) salesChart.destroy();
-    if(branchChart) branchChart.destroy();
-
-    salesChart = new Chart(document.getElementById('salesChart'), {
-    type: 'line',
-    data: {
-    labels: data.salesLabels,
-    datasets: [{
-    label: 'Sales',
-    data: data.salesData
-    }]
-    }
-    });
-
-    branchChart = new Chart(document.getElementById('branchChart'), {
-    type: 'doughnut',
-    data: {
-    labels: data.branchNames,
-    datasets: [{
-    data: data.branchSales
-    }]
-    }
-    });
-    }
-
-    // Auto Refresh
-    setInterval(loadData, 10000);
-
-    // SignalR
-    const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/dashboardHub")
-    .build();
-
-    connection.on("ReceiveDashboard", data => {
-    renderBranches(data.branches);
-    renderInsights(data.insights);
-    });
-
-    connection.start();
-
-    // Init
-    loadData();
-</script>
+        const themeBtn = document.getElementById("themeToggle");
+        if(themeBtn) {
+            themeBtn.addEventListener("click", () => {
+                setTimeout(() => {
+                    salesChart.destroy();
+                    categoryChart.destroy();
+                    initCharts();
+                }, 100);
+            });
+        }
+    </script>
+}

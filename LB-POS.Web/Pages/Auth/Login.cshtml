@@ -1,144 +1,222 @@
 ﻿@page "/Login"
+@using LB_POS.Core.Resources
+@using Microsoft.Extensions.Localization
 @model LB_POS.Web.Pages.Auth.LoginModel
 @{
     Layout = null;
 }
+@inject IStringLocalizer<SharedResources> L
 
 <!DOCTYPE html>
-
-<html lang="ar">
-
+<html lang="ar" dir="rtl">
 <head>
-
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@L[SharedResourcesKeys.Login]</title>
 
-    <title>تسجيل الدخول</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
+            :root {
+                --primary-color: #2563eb;
+                --secondary-color: #3b82f6;
+                --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            }
 
             body {
-                background: #f1f5f9;
+                background: var(--bg-gradient);
                 min-height: 100vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-family: Cairo;
+                font-family: 'Cairo', sans-serif;
+                margin: 0;
+            }
+
+            .login-container {
+                width: 100%;
+                max-width: 450px;
+                padding: 15px;
             }
 
             .login-card {
-                width: 100%;
-                max-width: 420px;
-                background: white;
-                border-radius: 14px;
-                padding: 30px;
-                box-shadow: 0 15px 40px rgba(0,0,0,.1);
+                background: #ffffff;
+                border-radius: 20px;
+                padding: 40px;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.8);
             }
 
-            .login-logo {
-                font-size: 26px;
-                font-weight: bold;
-                color: #2563eb;
+            .login-header {
                 text-align: center;
-                margin-bottom: 20px;
+                margin-bottom: 35px;
+            }
+
+            .icon-box {
+                width: 70px;
+                height: 70px;
+                background: var(--primary-color);
+                color: white;
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 30px;
+                margin: 0 auto 15px;
+                box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
+            }
+
+            .login-header h2 {
+                font-weight: 700;
+                color: #1e293b;
+                font-size: 24px;
+                margin-bottom: 5px;
+            }
+
+            .login-header p {
+                color: #64748b;
+                font-size: 14px;
+            }
+
+            .form-label {
+                font-weight: 600;
+                color: #475569;
+                margin-bottom: 8px;
+                font-size: 0.9rem;
+            }
+
+            .input-group {
+                background-color: #f8fafc;
+                border-radius: 12px;
+                border: 1.5px solid #e2e8f0;
+                transition: all 0.3s ease;
+                overflow: hidden;
+            }
+
+                .input-group:focus-within {
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+                    background-color: #fff;
+                }
+
+            .input-group-text {
+                background: transparent;
+                border: none;
+                color: #94a3b8;
+                padding-left: 0;
+                padding-right: 15px;
             }
 
             .form-control {
-                border-radius: 10px;
+                background: transparent;
+                border: none;
+                padding: 12px 10px;
+                font-size: 15px;
             }
+
+                .form-control:focus {
+                    box-shadow: none;
+                    background: transparent;
+                }
 
             .btn-login {
-                border-radius: 10px;
-                font-weight: 600;
+                background: var(--primary-color);
+                border: none;
+                border-radius: 12px;
+                padding: 12px;
+                font-weight: 700;
+                font-size: 16px;
+                margin-top: 10px;
+                transition: all 0.3s ease;
             }
 
+                .btn-login:hover {
+                    background: var(--secondary-color);
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+                }
+
+            .validation-summary ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .footer-text {
+                text-align: center;
+                margin-top: 25px;
+                color: #94a3b8;
+                font-size: 13px;
+            }
     </style>
-
 </head>
-
 <body>
 
-    <div class="login-card">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="icon-box">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h2>@L[SharedResourcesKeys.Login]</h2>
+                <p>مرحباً بك مجدداً، يرجى تسجيل الدخول</p>
+            </div>
 
-        <div class="login-logo">
+            <form method="post">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 mb-4 rounded-3 small" role="alert"></div>
+                }
+                @Html.AntiForgeryToken()
 
-            <i class="fas fa-fingerprint"></i>
+                <div class="mb-4">
+                    <label class="form-label">@L[SharedResourcesKeys.UserName]</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fa-regular fa-user"></i>
+                        </span>
+                        <input asp-for="Input.UserName"
+                               class="form-control"
+                               placeholder="@L[SharedResourcesKeys.EnterUserName]" />
+                    </div>
+                    <span asp-validation-for="Input.UserName" class="text-danger small mt-1 d-block"></span>
+                </div>
 
-            
+                <div class="mb-4">
+                    <label class="form-label">@L[SharedResourcesKeys.Password]</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fa-solid fa-lock-open"></i>
+                        </span>
+                        <input asp-for="Input.Password" type="password" class="form-control" placeholder="••••••••" />
+                    </div>
+                    <span asp-validation-for="Input.Password" class="text-danger small mt-1 d-block"></span>
+                </div>
 
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                        <label class="form-check-label small text-secondary" for="rememberMe">
+                            تذكرني
+                        </label>
+                    </div>
+                    <a href="#" class="text-primary small text-decoration-none">نسيت كلمة المرور؟</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 btn-login">
+                    @L[SharedResourcesKeys.Login]
+                </button>
+            </form>
         </div>
-
-        <form method="post">
-            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
-            @Html.AntiForgeryToken();
-            <div class="mb-3">
-
-                <label class="form-label">اسم المستخدم</label>
-
-                <div class="input-group">
-
-                    <span class="input-group-text">
-
-                        <i class="fa fa-user"></i>
-
-                    </span>
-
-                    <input asp-for="Input.UserName"
-                           class="form-control"
-                           placeholder="اسم المستخدم" />
-
-                </div>
-
-                <span asp-validation-for="Input.UserName"
-                      class="text-danger"></span>
-
-            </div>
-
-            <div class="mb-3">
-
-                <label class="form-label">كلمة المرور</label>
-
-                <div class="input-group">
-
-                    <span class="input-group-text">
-
-                        <i class="fa fa-lock"></i>
-
-                    </span>
-
-                    <input asp-for="Input.Password" type="password" class="form-control" placeholder="كلمة المرور" />
-
-                </div>
-
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-
-            </div>
-
-            <div class="form-check mb-3">
-
-                @* <input asp-for="Input.RememberMe" class="form-check-input" /> *@
-
-                <label class="form-check-label">تذكرني </label>
-
-            </div>
-
-            <button type="submit"
-                    class="btn btn-primary w-100 btn-login">
-
-                تسجيل الدخول
-
-            </button>
-
-        </form>
-
+        
+        <div class="footer-text">
+            &copy; @DateTime.Now.Year - نظام LB_POS لإدارة النقاط
+        </div>
     </div>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
 </body>
-
 </html>

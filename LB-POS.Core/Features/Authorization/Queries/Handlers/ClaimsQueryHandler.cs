@@ -33,7 +33,7 @@ namespace LB_POS.Core.Features.Authorization.Queries.Handlers
         {
             var user = await _userManager.FindByIdAsync(request.UserId.ToString());
             if (user == null) return NotFound<ManageUserClaimsResult>(_stringLocalizer[SharedResourcesKeys.UserIsNotFound]);
-            var result = await _authorizationService.ManageUserClaimData(user);
+            var result = await _authorizationService.ManageUserClaimData(user.Id);
             return Success(result);
         }
         #endregion

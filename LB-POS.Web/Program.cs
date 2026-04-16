@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using SmartBreadcrumbs.Extensions;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +26,7 @@ builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/");
     options.Conventions.AllowAnonymousToPage("/Login");
-});
+}).AddRazorRuntimeCompilation();
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 
@@ -38,7 +39,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
-
+builder.Services.AddHttpContextAccessor();
 // Project Layers
 builder.Services.AddInfrastructureDependencies()
                  .AddServiceDependencies()
@@ -49,9 +50,11 @@ builder.Services.AddInfrastructureDependencies()
 
 builder.Services.AddLocalization(options =>
 {
-    options.ResourcesPath = "Resources";
+    options.ResourcesPath = "";
 });
 
+
+builder.Services.AddBreadcrumbs(typeof(Program).Assembly);
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new List<CultureInfo>
@@ -84,6 +87,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Login";
     options.AccessDeniedPath = "/Login";
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    options.AccessDeniedPath = "/Shared/AccessDenied";
 });
 builder.Services.AddAuthorization();
 builder.Services.AddRateLimiter(options =>
@@ -113,7 +117,7 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
 
     await RoleSeeder.SeedAsync(roleManager);
-    await UserSeeder.SeedAsync(userManager);
+    await UserSeeder.SeedAsync(userManager, roleManager);
 }
 
 // ================== Middleware ==================
@@ -132,6 +136,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseCors("AllowSpecificOrigins");   // مهم
+app.UseRateLimiter();
 
 app.UseMiddleware<ErrorHandlerMiddleware>();
 

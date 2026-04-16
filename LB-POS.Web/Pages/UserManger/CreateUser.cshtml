@@ -1,82 +1,209 @@
 ﻿@page
+@using LB_POS.Core.Resources
+@using Microsoft.Extensions.Localization
 @model LB_POS.Web.Pages.UserManger.CreateUserModel
 @{
-    ViewData["Title"] = "Create User";
+    ViewData["Title"] = L[SharedResourcesKeys.CreateUser];
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
 }
-<div class="pos-container">
-    <div class="pos-card">
+@inject IStringLocalizer<SharedResources> L
 
-        <div class="pos-header">
-            <div class="title">
-                <i class="fas fa-user-plus"></i>
-                <span>Create User</span>
+<style>
+    /* تنسيقات الـ Breadcrumb */
+    .custom-breadcrumb {
+        border: 1px solid var(--border, #e2e8f0);
+        display: flex;
+        align-items: center;
+    }
+    .custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+        content: "@(isRtl ? "\\f104" : "\\f105")"; /* سهم يتغير حسب اتجاه اللغة */
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        padding: 0 10px;
+        color: #94a3b8;
+    }
+    .custom-breadcrumb .breadcrumb-item a {
+        color: #64748b;
+        transition: color 0.3s ease;
+    }
+    .custom-breadcrumb .breadcrumb-item a:hover {
+        color: #2563eb;
+    }
+
+    /* تنسيقات حقول الإدخال لتطابق صفحة تسجيل الدخول */
+    .input-group {
+        background-color: var(--bg-light, #f8fafc);
+        border-radius: 10px;
+        border: 1.5px solid var(--border, #e2e8f0);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    .input-group:focus-within {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        background-color: var(--bg-white, #ffffff);
+    }
+    .input-group-text {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+    }
+    .form-control {
+        background: transparent;
+        border: none;
+        padding: 12px 10px;
+        font-size: 14px;
+        color: var(--text-color, #1e293b);
+    }
+    .form-control:focus {
+        box-shadow: none;
+        background: transparent;
+    }
+    .btn-toggle-pass {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        padding: 0 15px;
+        transition: color 0.3s;
+    }
+    .btn-toggle-pass:hover {
+        color: #2563eb;
+    }
+</style>
+
+<div class="container-fluid mb-3 mt-2">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb custom-breadcrumb bg-white p-3 rounded-3 shadow-sm mb-0">
+            <li class="breadcrumb-item">
+                <a href="/" class="text-decoration-none fw-semibold">
+                    <i class="fas fa-home mx-1 text-primary"></i> @L[SharedResourcesKeys.EnterPhone]
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/UserManger/Index" class="text-decoration-none text-secondary">
+                    @L[SharedResourcesKeys.UserIsNotFound]
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <span class="fw-bold text-dark">@ViewData["Title"]</span>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container-fluid">
+    <div class="content-wrapper bg-white p-4 rounded-4 shadow-sm border-0">
+        
+        <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom" style="border-color: var(--border, #e2e8f0) !important;">
+            <div>
+                <h4 class="mb-1 fw-bold text-primary d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 @(isRtl ? "ms-3" : "me-3")">
+                        <i class="fas fa-user-plus text-primary"></i>
+                    </div>
+                    @L[SharedResourcesKeys.CreateUser]
+                </h4>
+                <p class="text-muted small mb-0 mt-1">@L[SharedResourcesKeys.CreateUserDesc]</p>
             </div>
+            <a asp-page="/UserManger/Index" class="btn btn-light px-4 border shadow-sm rounded-3 hover-shadow transition">
+                <i class="fas @(isRtl ? "fa-arrow-right ms-1" : "fa-arrow-left me-1") small"></i>
+                @L[SharedResourcesKeys.BackToList]
+            </a>
         </div>
 
-        <div class="pos-body">
+        <form method="post" asp-page-handler="Async">
+            @Html.AntiForgeryToken()
 
-            <form method="post" asp-page-handler="Async">
-                @Html.AntiForgeryToken()
-
-                <div class="row g-3">
-
-                    <div class="col-12">
-                        <div class="pos-input">
-                            <i class="fas fa-user"></i>
-                            <input asp-for="AddUser.FullName" placeholder="Full Name">
-                            </div>
-                        </div>
-                        <div class="pos-input">
-                            <i class="fas fa-user"></i>
-                            <input asp-for="AddUser.UserName" placeholder="User Name">
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 col-12">
-                            <div class="pos-input">
-                                <i class="fas fa-envelope"></i>
-                                <input asp-for="AddUser.Email" placeholder="Email">
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 col-12">
-                                <div class="pos-input">
-                                    <i class="fas fa-phone"></i>
-                                    <input asp-for="AddUser.PhoneNumber" placeholder="Phone">
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 col-12">
-                                    <div class="pos-input password-box">
-                                        <i class="fas fa-lock"></i>
-                                        <input asp-for="AddUser.Password" type="password" id="password" placeholder="Password">
-                                            <span class="toggle-pass" data-target="password">
-                                                <i class="fas fa-eye"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 col-12">
-                                        <div class="pos-input password-box">
-                                            <i class="fas fa-lock"></i>
-                                            <input asp-for="AddUser.ConfirmPassword" type="password" id="confirmPassword" placeholder="Confirm Password">
-                                                <span class="toggle-pass" data-target="confirmPassword">
-                                                    <i class="fas fa-eye"></i>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                 
-
-                                    <div class="pos-actions mt-4">
-                                        <a asp-page="/UserManger/Index" class="btn-cancel">Cancel</a>
-                                        <button type="submit" class="btn-save w-100-mobile">
-                                            <i class="fas fa-save"></i> Save
-                                        </button>
-                                    </div>
-
-                                </form>
-
-                            </div>
-                        </div>
+            <div class="row g-4">
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small mb-2 text-secondary">@L[SharedResourcesKeys.FullName]</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                        <input asp-for="AddUser.FullName" class="form-control" placeholder="@L[SharedResourcesKeys.EnterFullName]">
                     </div>
+                    <span asp-validation-for="AddUser.FullName" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small mb-2 text-secondary">@L[SharedResourcesKeys.UserName]</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+                        <input asp-for="AddUser.UserName" class="form-control" placeholder="@L[SharedResourcesKeys.EnterUserName]">
+                    </div>
+                    <span asp-validation-for="AddUser.UserName" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small mb-2 text-secondary">@L[SharedResourcesKeys.Email]</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input asp-for="AddUser.Email" type="email" class="form-control" placeholder="@L[SharedResourcesKeys.EnterEmail]">
+                    </div>
+                    <span asp-validation-for="AddUser.Email" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small mb-2 text-secondary">@L[SharedResourcesKeys.PhoneNumber]</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                        <input asp-for="AddUser.PhoneNumber" class="form-control" placeholder="@L[SharedResourcesKeys.EnterPhone]">
+                    </div>
+                    <span asp-validation-for="AddUser.PhoneNumber" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small mb-2 text-secondary">@L[SharedResourcesKeys.Password]</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input asp-for="AddUser.Password" type="password" id="password" class="form-control" placeholder="••••••••">
+                        <button type="button" class="btn-toggle-pass" onclick="togglePass('password', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="AddUser.Password" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small mb-2 text-secondary">@L[SharedResourcesKeys.ConfirmPassword]</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-shield-alt"></i></span>
+                        <input asp-for="AddUser.ConfirmPassword" type="password" id="confirmPassword" class="form-control" placeholder="••••••••">
+                        <button type="button" class="btn-toggle-pass" onclick="togglePass('confirmPassword', this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="AddUser.ConfirmPassword" class="text-danger small mt-1 d-block"></span>
+                </div>
+
+            </div>
+
+            <div class="mt-5 d-flex gap-2 justify-content-end border-top pt-4" style="border-color: var(--border, #e2e8f0) !important;">
+                <button type="reset" class="btn btn-light px-4 border rounded-3 shadow-sm hover-shadow">
+                    @L[SharedResourcesKeys.Reset]
+                </button>
+                <button type="submit" class="btn btn-primary px-5 py-2 rounded-3 shadow-sm hover-shadow">
+                    <i class="fas fa-save mx-1"></i> @L[SharedResourcesKeys.SaveUser]
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // دالة إظهار وإخفاء كلمة المرور
+        function togglePass(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = "password";
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+    </script>
+}

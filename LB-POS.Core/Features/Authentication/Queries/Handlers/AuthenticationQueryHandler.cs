@@ -34,7 +34,7 @@ namespace LB_POS.Core.Features.Authentication.Queries.Handlers
         #region Handle Functions
         public async Task<Response<string>> Handle(AuthorizeUserQuery request, CancellationToken cancellationToken)
         {
-            var result = await _authenticationService.ValidateToken(request.AccessToken);
+            var result = _authenticationService.ValidateToken(request.AccessToken);
             if (result == "NotExpired")
                 return Success(result);
             return Unauthorized<string>(_stringLocalizer[SharedResourcesKeys.TokenIsExpired]);

@@ -1,15 +1,15 @@
-﻿namespace LB_POS.Core.Behavior
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace LB_POS.Core.Behavior
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-    public class AuthorizeClaimAttribute : Attribute
+    public class HasPermissionAttribute : TypeFilterAttribute
     {
-        public string ClaimType { get; }
-        public string ClaimValue { get; }
-
-        public AuthorizeClaimAttribute(string claimType, string claimValue)
+        public string Permission { get; }
+        public HasPermissionAttribute(string permission) : base(typeof(PermissionFilter))
         {
-            ClaimType = claimType;
-            ClaimValue = claimValue;
+            Permission = permission;
+            Arguments = new object[] { permission };
         }
     }
 }

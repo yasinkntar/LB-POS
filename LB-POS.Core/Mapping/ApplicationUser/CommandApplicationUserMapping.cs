@@ -11,7 +11,9 @@ namespace LB_POS.Core.Mapping.ApplicationUser
         }
         public void UpdateUserMapping()
         {
-            CreateMap<EditUserCommand, User>();
+            CreateMap<EditUserCommand, User>() // أو اسم كلاس المستخدم لديك
+                .ForMember(dest => dest.Id, opt => opt.Ignore()) // تجاهل الـ ID لأنه لا يتغير
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
         }
     }
 }

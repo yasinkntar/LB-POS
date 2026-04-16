@@ -13,7 +13,7 @@ namespace LB_POS.Core.Features.Brnach.Queries.Handlers
 {
     public class BranchHandler : ResponseHandler,
                                                   IRequestHandler<GetBranchByIDQuery, Response<GetSingleBranchResponse>>,
-                                                  IRequestHandler<GetStudentPaginatedListQuery, PaginatedResult<GetBranchListResponse>>
+                                                  IRequestHandler<GetBrnachPaginatedListQuery, PaginatedResult<GetBranchListResponse>>
     {
         public readonly IBranchService BranchService;
         public readonly IMapper mapper;
@@ -38,7 +38,7 @@ namespace LB_POS.Core.Features.Brnach.Queries.Handlers
             return Success(mappedResult);
         }
 
-        public async Task<PaginatedResult<GetBranchListResponse>> Handle(GetStudentPaginatedListQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<GetBranchListResponse>> Handle(GetBrnachPaginatedListQuery request, CancellationToken cancellationToken)
         {
             var FilterQuery = BranchService.FilterBranchPaginatedQuerable(request.OrderBy, request.Search);
             var PaginatedList = await mapper.ProjectTo<GetBranchListResponse>(FilterQuery).ToPaginatedListAsync(request.PageNumber, request.PageSize);

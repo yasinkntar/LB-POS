@@ -5,7 +5,7 @@ using MediatR;
 
 namespace LB_POS.Core.Features.Brnach.Queries.Models
 {
-    public class GetStudentPaginatedListQuery : IRequest<PaginatedResult<GetBranchListResponse>>
+    public class GetBrnachPaginatedListQuery : IRequest<PaginatedResult<GetBranchListResponse>>
     {
         public int PageNumber { get; set; }
         public int PageSize { get; set; }

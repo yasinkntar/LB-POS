@@ -20,6 +20,11 @@
     <PackageReference Include="MediatR" Version="14.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.24" />
+    <PackageReference Include="SmartBreadcrumbs" Version="3.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Section\Command\" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,144 @@
+﻿@page "{userid:int}"
+@model LB_POS.Web.Pages.Roles.ManageUserClaimsModel
+
+@using LB_POS.Core.Resources
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResources> L
+
+@{
+    ViewData["Title"] = L[SharedResourcesKeys.ManageUserClaims];
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+}
+
+<div class="content-wrapper">
+
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom flex-wrap gap-3">
+        <div>
+            <h4 class="mb-1 fw-bold text-primary">
+                <i class="fas fa-user-shield @(isRtl ? "ms-2" : "me-2")"></i>
+                @L[SharedResourcesKeys.UserClaimsFor, Model.UserName]
+            </h4>
+            <p class="text-muted small mb-0">@L[SharedResourcesKeys.ManageUserClaimsDesc]</p>
+        </div>
+
+        <div class="d-flex gap-3">
+            <button type="button" onclick="document.getElementById('saveForm').submit()" class="btn btn-primary shadow-sm px-4">
+                <i class="fas fa-save @(isRtl ? "ms-2" : "me-2")"></i> @L[SharedResourcesKeys.SavePermissionsChanges]
+            </button>
+        </div>
+    </div>
+
+    <div class="alert alert-info border-0 shadow-sm rounded-4 d-flex align-items-center mb-4" role="alert">
+        <i class="fas fa-info-circle @(isRtl ? "ms-3" : "me-3") fs-4"></i>
+        <div>
+            <strong>@L[SharedResourcesKeys.Note]:</strong> 
+            @L["الصلاحيات المحددة والمغلقة (Disabled) هي صلاحيات موروثة من أدوار المستخدم ولا يمكن إلغاؤها من هنا."]
+        </div>
+    </div>
+
+    <form method="post" id="saveForm">
+        <input type="hidden" asp-for="UserClaimsManage.UserId" />
+
+        <div class="row g-4">
+            @{
+                var groupedClaims = Model.UserClaimsManage.userClaims
+                                    .Select((c, i) => new { Claim = c, Index = i })
+                                    .GroupBy(x => x.Claim.GroupName);
+            }
+
+            @foreach (var group in groupedClaims)
+            {
+                var displayGroupName = group.Key ?? L[SharedResourcesKeys.General].Value;
+    
+                // 2. تأمين توليد الـ ID بدون أخطاء
+                var groupId = "group_" + (group.Key?.GetHashCode() ?? "default".GetHashCode());
+                <div class="col-xl-6">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                        
+                        <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle-sm bg-primary-soft text-primary @(isRtl ? "ms-3" : "me-3")">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <h6 class="mb-0 fw-bold">@group.Key</h6>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input group-select-all" type="checkbox" data-group="@groupId">
+                                <label class="small text-muted fw-medium ms-1 me-1">@L[SharedResourcesKeys.SelectAllGroup]</label>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-0">
+                            <table class="table table-hover align-middle mb-0">
+                                <tbody>
+                                    @foreach (var item in group)
+                                    {
+                                        <tr class="claim-row @(item.Claim.IsInheritedFromRole ? "bg-light-soft" : "")">
+                                            
+                                            <td class="ps-4 py-3">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="fw-medium @(item.Claim.IsInheritedFromRole ? "text-muted" : "text-dark-emphasis")">
+                                                        @item.Claim.DisplayName
+                                                    </span>
+                                                    @if (item.Claim.IsInheritedFromRole)
+                                                    {
+                                                        <span class="badge bg-secondary-soft text-secondary ms-2 me-2 small">
+                                                            @L["موروثة"]
+                                                        </span>
+                                                    }
+                                                </div>
+                                                <input type="hidden" asp-for="UserClaimsManage.userClaims[item.Index].Type" />
+                                                <input type="hidden" asp-for="UserClaimsManage.userClaims[item.Index].IsInheritedFromRole" />
+                                            </td>
+
+                                            <td class="text-end pe-4">
+                                                <div class="form-check form-switch d-inline-block">
+                                                    
+                                                    <input asp-for="UserClaimsManage.userClaims[item.Index].Value"
+                                                           class="form-check-input claim-checkbox"
+                                                           type="checkbox"
+                                                           disabled="@(item.Claim.IsInheritedFromRole ? "disabled" : null)" />
+                                                    
+                                                    @if (item.Claim.IsInheritedFromRole)
+                                                    {
+                                                        <input type="hidden" asp-for="UserClaimsManage.userClaims[item.Index].Value" value="true" />
+                                                    }
+
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // منطق تحديد الكل للمجموعة (يتجاهل الحقول المعطلة)
+            $('.group-select-all').on('change', function () {
+                const group = $(this).data('group');
+                const isChecked = $(this).is(':checked');
+                $(`.claim-checkbox[data-group-target="${group}"]:not(:disabled)`).prop('checked', isChecked);
+            });
+
+            // تحديث حالة "تحديد الكل" عند التحميل
+            $('.group-select-all').each(function () {
+                const group = $(this).data('group');
+                const all = $(`.claim-checkbox[data-group-target="${group}"]:not(:disabled)`);
+                const checked = all.filter(':checked');
+                
+                // تفعيل "تحديد الكل" فقط إذا كانت كل الحقول (الغير معطلة) محددة، ويوجد على الأقل حقل واحد غير معطل
+                $(this).prop('checked', all.length === checked.length && all.length > 0);
+            });
+        });
+    </script>
+}

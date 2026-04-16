@@ -36,6 +36,16 @@ namespace LB_POS.Core.Features.ApplicationUser.Queries.Handlers
         public async Task<PaginatedResult<GetUserPaginationReponse>> Handle(GetUserPaginationQuery request, CancellationToken cancellationToken)
         {
             var users = _userManager.Users.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(request.Serarch))
+            {
+                var searchTerm = request.Serarch.Trim().ToLower();
+
+                // الفلترة حسب الاسم الكامل، اسم المستخدم، أو البريد
+                users = users.Where(u =>
+                    u.FullName.ToLower().Contains(searchTerm) ||
+                    u.UserName.ToLower().Contains(searchTerm) ||
+                    u.Email.ToLower().Contains(searchTerm));
+            }
             var paginatedList = await _mapper.ProjectTo<GetUserPaginationReponse>(users)
                                             .ToPaginatedListAsync(request.PageNumber, request.PageSize);
             return paginatedList;

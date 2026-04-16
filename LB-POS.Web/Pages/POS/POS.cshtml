@@ -1,0 +1,460 @@
+﻿@page "/POS"
+@using LB_POS.Core.Resources
+@using Microsoft.Extensions.Localization
+@{
+    Layout = null;
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+}
+@inject IStringLocalizer<SharedResources> L
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>@L["نقطة البيع - المطعم"]</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --pos-bg: #f3f4f6;
+            --surface: #ffffff;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #8b5cf6; /* لون مميز لزر المطبخ */
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        body {
+            background-color: var(--pos-bg);
+            font-family: 'Cairo', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- الشريط العلوي --- */
+        .pos-header {
+            background: var(--surface);
+            height: 70px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 10;
+        }
+
+        .pos-body {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 70px);
+            overflow: hidden;
+        }
+
+        /* --- 1. قائمة المنتجات --- */
+        .menu-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .categories-container {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            scrollbar-width: none;
+        }
+        .categories-container::-webkit-scrollbar { display: none; }
+        
+        .cat-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 700;
+            color: var(--text-muted);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .cat-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            padding-right: 5px;
+        }
+
+        .product-card {
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+            user-select: none;
+        }
+        .product-card:active { transform: scale(0.96); }
+        .product-icon {
+            width: 80px;
+            height: 80px;
+            background: #eff6ff;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 12px;
+        }
+        .product-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 5px;
+            line-height: 1.3;
+            height: 40px;
+            overflow: hidden;
+        }
+        .product-price { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
+
+        /* --- 2. سلة الطلبات --- */
+        .cart-area {
+            width: 420px; /* زيادة العرض قليلاً لاستيعاب الأزرار الجديدة براحة */
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 5;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.02);
+        }
+
+        .cart-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        /* أزرار نوع الطلب (تم التعديل هنا) */
+        .order-type-switch {
+            background: var(--pos-bg);
+            border-radius: 12px;
+            padding: 6px;
+            display: flex;
+            gap: 4px;
+            margin-top: 15px;
+        }
+        .order-type-btn {
+            flex: 1;
+            padding: 8px 4px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .order-type-btn i { font-size: 1.1rem; }
+        .order-type-btn.active {
+            background: var(--surface);
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 20px;
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        .item-qty-controls {
+            display: flex;
+            align-items: center;
+            background: var(--pos-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .qty-btn {
+            background: transparent;
+            border: none;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+        .qty-input {
+            width: 30px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-weight: 700;
+            pointer-events: none;
+        }
+
+        /* --- 3. الفوتر وأزرار الإجراءات (تم التعديل هنا) --- */
+        .cart-footer {
+            padding: 20px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px dashed var(--border);
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        
+        /* شبكة الأزرار السفلية */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-action {
+            border: none;
+            border-radius: 12px;
+            padding: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        .btn-action:active { opacity: 0.8; }
+        .btn-action i { font-size: 1.2rem; }
+        
+        .btn-cancel { background: #fee2e2; color: #dc2626; }
+        .btn-hold { background: #fef3c7; color: #d97706; }
+        .btn-kitchen { background: #ede9fe; color: var(--info); } /* زر المطبخ */
+
+        .btn-pay {
+            grid-column: span 3; /* يأخذ مساحة 3 أعمدة */
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+            margin-top: 5px;
+        }
+        .btn-pay:hover { background: #059669; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <header class="pos-header">
+        <div class="d-flex align-items-center gap-3">
+            <a href="/Dashboard" class="btn btn-light rounded-circle shadow-sm" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-home text-secondary"></i>
+            </a>
+            <h4 class="mb-0 fw-bold text-primary">
+                <i class="fas fa-utensils me-2"></i> مطعم لبيبو
+            </h4>
+        </div>
+        
+        <div class="d-flex align-items-center gap-4">
+            <div class="text-end d-none d-md-block">
+                <div class="fw-bold text-dark">@DateTime.Now.ToString("hh:mm tt")</div>
+                <div class="small text-muted">@DateTime.Now.ToString("dd MMMM yyyy")</div>
+            </div>
+            <div class="d-flex align-items-center gap-2 border-start ps-3">
+                <img src="~/images/avatar.jpg" class="rounded-circle object-fit-cover" width="40" height="40" alt="User" onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=eff6ff&color=2563eb'">
+                <div>
+                    <div class="fw-bold text-dark" style="font-size: 0.9rem;">أحمد محمد</div>
+                    <div class="small text-success fw-bold">كاشير نشط</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="pos-body">
+        
+        <div class="menu-area">
+            <div class="categories-container">
+                <button class="cat-btn active"><i class="fas fa-star text-warning"></i> الكل</button>
+                <button class="cat-btn"><i class="fas fa-hamburger"></i> برجر</button>
+                <button class="cat-btn"><i class="fas fa-pizza-slice"></i> بيتزا</button>
+                <button class="cat-btn"><i class="fas fa-drumstick-bite"></i> وجبات دجاج</button>
+                <button class="cat-btn"><i class="fas fa-mug-hot"></i> مشروبات ساخنة</button>
+                <button class="cat-btn"><i class="fas fa-ice-cream"></i> حلويات</button>
+            </div>
+
+            <div class="products-grid mt-3">
+                <div class="product-card">
+                    <div class="product-icon"><i class="fas fa-hamburger"></i></div>
+                    <div class="product-title">برجر لحم دبل</div>
+                    <div class="product-price">$12.50</div>
+                </div>
+                <div class="product-card">
+                    <div class="product-icon" style="color: #ea580c; background: #ffedd5;"><i class="fas fa-pizza-slice"></i></div>
+                    <div class="product-title">بيتزا مارغريتا وسط</div>
+                    <div class="product-price">$15.00</div>
+                </div>
+                <div class="product-card">
+                    <div class="product-icon" style="color: #16a34a; background: #dcfce7;"><i class="fas fa-leaf"></i></div>
+                    <div class="product-title">سلطة سيزر</div>
+                    <div class="product-price">$8.00</div>
+                </div>
+                <div class="product-card">
+                    <div class="product-icon" style="color: #dc2626; background: #fee2e2;"><i class="fas fa-drumstick-bite"></i></div>
+                    <div class="product-title">وجبة كريسبي</div>
+                    <div class="product-price">$10.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cart-area">
+            
+            <div class="cart-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-primary">طلب #1042</h5>
+                    <button class="btn btn-sm btn-light rounded-circle shadow-sm"><i class="fas fa-user-plus text-secondary"></i></button>
+                </div>
+                
+                <div class="order-type-switch">
+                    <button class="order-type-btn active">
+                        <i class="fas fa-shopping-bag"></i> سفري
+                    </button>
+                    <button class="order-type-btn">
+                        <i class="fas fa-chair"></i> طاولات
+                    </button>
+                    <button class="order-type-btn">
+                        <i class="fas fa-motorcycle"></i> دليفري
+                    </button>
+                </div>
+            </div>
+
+            <div class="cart-items">
+                <div class="cart-item">
+                    <div style="flex: 1;">
+                        <div class="fw-bold text-dark">برجر لحم دبل</div>
+                        <div class="text-muted small mt-1">$12.50</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="item-qty-controls shadow-sm">
+                            <button class="qty-btn"><i class="fas fa-minus"></i></button>
+                            <input type="text" class="qty-input" value="2" readonly>
+                            <button class="qty-btn"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <div class="fw-bold text-primary" style="width: 50px; text-align: left;">$25.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-footer shadow-lg">
+                <div class="summary-row">
+                    <span>المجموع الفرعي</span>
+                    <span>$25.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>الضريبة (15%)</span>
+                    <span>$3.75</span>
+                </div>
+                <div class="total-row">
+                    <span>الإجمالي</span>
+                    <span>$28.75</span>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-action btn-cancel">
+                        <i class="fas fa-trash-alt"></i> إلغاء
+                    </button>
+                    <button class="btn-action btn-hold">
+                        <i class="fas fa-pause-circle"></i> تعليق
+                    </button>
+                    <button class="btn-action btn-kitchen">
+                        <i class="fas fa-fire"></i> للمطبخ
+                    </button>
+
+                    <button class="btn-pay">
+                        <span><i class="fas fa-wallet me-2"></i> الدفع الآن</span>
+                        <span>$28.75</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // تغيير تصنيفات الأكل
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelector('.cat-btn.active').classList.remove('active');
+                this.classList.add('active');
+            });
+        });
+
+        // تغيير نوع الطلب (سفري، طاولات، دليفري)
+        document.querySelectorAll('.order-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelector('.order-type-btn.active').classList.remove('active');
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

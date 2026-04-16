@@ -1,0 +1,124 @@
+﻿@page "{id:int}"
+@using LB_POS.Core.Resources
+@using Microsoft.Extensions.Localization
+@model LB_POS.Web.Pages.UserManger.EditUserModel
+@{
+    ViewData["Title"] = L[SharedResourcesKeys.EditUser];
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+}
+@inject IStringLocalizer<SharedResources> L
+
+<div class="content-wrapper">
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom" style="border-color: var(--border) !important;">
+        <div>
+            <h4 class="mb-1 fw-bold text-primary">
+                <i class="fas fa-user-edit @(isRtl ? "ms-2" : "me-2")"></i> @L[SharedResourcesKeys.EditUser]
+            </h4>
+            <p class="text-muted small mb-0">@L[SharedResourcesKeys.EditUserDesc]</p>
+        </div>
+        <a asp-page="Index" class="btn btn-light px-4 border">
+            <i class="fas @(isRtl ? "fa-arrow-left" : "fa-arrow-right") me-1 ms-1"></i> @L[SharedResourcesKeys.BackToList]
+        </a>
+    </div>
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Input.Id" />
+
+        <div class="row g-5">
+            <div class="col-lg-4 text-center">
+                <div class="p-4 rounded-4 bg-light-soft border" style="background: var(--neutral-soft); border-color: var(--border) !important;">
+                    <div class="avatar-circle mx-auto mb-3 shadow-sm" style="width: 120px; height: 120px; font-size: 3rem; border: 4px solid var(--card-bg);">
+                        @if (!string.IsNullOrEmpty(Model.Input.FullName))
+                        {
+                            @Model.Input.FullName[0].ToString().ToUpper()
+                        }
+                        else
+                        {
+                            <i class="fas fa-user"></i>
+                        }
+                    </div>
+                    <h5 class="fw-bold mb-1">@Model.Input.FullName</h5>
+                    <p class="text-muted small mb-3">@@@Model.Input.UserName</p>
+                    <span class="badge rounded-pill bg-primary-soft text-primary px-3 py-2">
+                        <i class="fas fa-shield-halved me-1 ms-1"></i> @L["Active User"]
+                    </span>
+                </div>
+                
+                <div class="alert alert-warning-custom mt-4 text-start small">
+                    <i class="fas fa-info-circle"></i>
+                    @L[SharedResourcesKeys.LeavePasswordEmpty]
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">@L[SharedResourcesKeys.FullName]</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-id-card icon"></i>
+                            <input asp-for="Input.FullName" class="form-control custom-control" placeholder="@L[SharedResourcesKeys.EnterFullName]" />
+                        </div>
+                        <span asp-validation-for="Input.FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">@L[SharedResourcesKeys.UserName]</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-at icon"></i>
+                            <input asp-for="Input.UserName" class="form-control custom-control" placeholder="@L[SharedResourcesKeys.EnterUserName]" />
+                        </div>
+                        <span asp-validation-for="Input.UserName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">@L[SharedResourcesKeys.Email]</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-envelope icon"></i>
+                            <input asp-for="Input.Email" type="email" class="form-control custom-control" placeholder="@L[SharedResourcesKeys.EnterEmail]" />
+                        </div>
+                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">@L[SharedResourcesKeys.PhoneNumber]</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-phone icon"></i>
+                            <input asp-for="Input.PhoneNumber" class="form-control custom-control" placeholder="01xxxxxxxxx" />
+                        </div>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">@L[SharedResourcesKeys.Password]</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-lock icon"></i>
+                            <input asp-for="Input.Password" type="password" class="form-control custom-control" placeholder="********" />
+                        </div>
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">@L[SharedResourcesKeys.ConfirmPassword]</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-check-double icon"></i>
+                            <input asp-for="Input.ConfirmPassword" type="password" class="form-control custom-control" placeholder="********" />
+                        </div>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12 mt-5 pt-4 border-top" style="border-color: var(--border) !important;">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" onclick="history.back()" class="btn btn-light px-4 border">@L["Cancel"]</button>
+                            <button type="submit" class="btn btn-primary px-5 py-2 shadow-sm">
+                                <i class="fas fa-save @(isRtl ? "ms-2" : "me-2")"></i> @L[SharedResourcesKeys.SaveChanges]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

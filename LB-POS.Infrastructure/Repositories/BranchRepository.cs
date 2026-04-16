@@ -13,10 +13,8 @@ namespace LB_POS.Infrastructure.Repositories
 {
     public class BranchRepository : GenericRepositoryAsync<Branch>, IBranchRepository
     {
-        private readonly DbSet<Branch> _branch;
         public BranchRepository(ApplicationDBContext dbContext):base(dbContext)
         {
-            _branch = dbContext.Set<Branch>();
         }
         public async Task<List<Branch>> GetBranchesAsync()
         {

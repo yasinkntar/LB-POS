@@ -3,6 +3,7 @@ using LB_POS.Core.Base;
 using LB_POS.Core.Behavior;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using SmartBreadcrumbs.Extensions;
 using System.Reflection;
 
 namespace LB_POS.Core
@@ -27,7 +28,7 @@ namespace LB_POS.Core
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
             services.AddScoped<ResponseHandler>();
-
+            //services.AddScoped<MenuBuilder>();
             return services;
         }
     }

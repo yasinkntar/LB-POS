@@ -3,6 +3,7 @@
     public class ManageUserRolesResult
     {
         public int UserId { get; set; }
+        public string FullName { get; set; }
         public List<UserRoles> userRoles { get; set; }
     }
     public class UserRoles

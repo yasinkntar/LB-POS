@@ -16,6 +16,7 @@ namespace LB_POS.Service
             services.AddTransient<IApplicationUserService, ApplicationUserService>();
             services.AddTransient<ICurrentUserService, CurrentUserService>();
             services.AddTransient<IFileService, FileService>();
+            services.AddScoped<LocationService>();
             return services;
         }
     }

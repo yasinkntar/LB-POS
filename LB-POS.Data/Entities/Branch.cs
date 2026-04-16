@@ -5,7 +5,7 @@ namespace LB_POS.Data.Entities
 {
     public class Branch
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public int Id { get; set; }
         [MaxLength(50)]
         public required string Code { get; set; }
         [MaxLength(200)]
@@ -17,6 +17,11 @@ namespace LB_POS.Data.Entities
         public string? SyndicateLicenseNumber { get; set; }
         [MaxLength(10)]
         public required string ActivityCode { get; set; }
+        public ICollection<Section> Sections { get; set; }
+        public ICollection<Table> Tables { get; set; }
+        public ICollection<Kitchen> Kitchens { get; set; }
+        public ICollection<DeliveryZone> DeliveryZones { get; set; }
+        public ICollection<UserBranch> UserBranches { get; set; }
     }
     [ComplexType]
     public class BranchAddress
@@ -40,6 +45,7 @@ namespace LB_POS.Data.Entities
 
         [MaxLength(30)]
         public string? PostalCode { get; set; }
+
 
         [MaxLength(100)]
         public string? Floor { get; set; }

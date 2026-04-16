@@ -1,0 +1,131 @@
+﻿@page "/Roles"
+@using LB_POS.Core.Resources
+@using Microsoft.Extensions.Localization
+@model LB_POS.Web.Pages.Roles.IndexModel
+@{
+    ViewData["Title"] = L[SharedResourcesKeys.RoleIsUsed];
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+}
+@inject IStringLocalizer<SharedResources> L
+
+@* <div class="content-wrapper"> *@
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h4 class="mb-1 fw-bold text-primary">
+                <i class="fas fa-shield-alt @(isRtl ? "ms-2" : "me-2")"></i>@L[SharedResourcesKeys.RoleIsUsed]
+            </h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">@L["Home"]</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@L[SharedResourcesKeys.RoleIsUsed]</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-md-6 d-flex justify-content-md-end gap-2 mt-3 mt-md-0">
+            <a asp-page="CreateRole" class="btn btn-primary px-4 shadow-sm d-flex align-items-center">
+                <i class="fas fa-plus-circle @(isRtl ? "ms-2" : "me-2")"></i> @L["إضافة دور جديد"]
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-visible">
+        <div class="table-responsive" style="overflow: visible !important;">
+            <table class="table custom-table-style align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="@(isRtl ? "ps-4" : "pe-4")" style="width: 40%;">@L["اسم الدور"]</th>
+                        <th style="width: 30%;">@L["عدد المستخدمين"]</th>
+                        <th class="text-center" style="width: 30%;">@L[SharedResourcesKeys.Actions]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var role in Model.RolesList)
+                    {
+                        <tr>
+                            <td class="@(isRtl ? "ps-4" : "pe-4")">
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar-styled @(isRtl ? "ms-3" : "me-3") shadow-sm">
+                                        <i class="fas fa-user-shield"></i>
+                                    </div>
+                                    
+                                    <div class="user-info d-flex flex-column justify-content-center">
+                                        <div class="fw-bold mb-0 text-dark-emphasis lh-1">
+                                            @role.Name
+                                        </div>
+                                        <div class="text-muted mt-1" style="font-size: 0.75rem;">
+                                            ID: <span class="text-primary-emphasis fw-semibold">#@role.Id</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill bg-primary-soft text-primary border border-primary-soft px-3 py-2">
+                                    <i class="fas fa-users @(isRtl ? "ms-1" : "me-1")"></i>
+                    @role.CountUser
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="dropdown">
+                                    <button class="btn btn-light-soft btn-sm px-2 shadow-none"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            data-bs-boundary="viewport">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                        <li>
+                                            <a class="dropdown-item py-2" asp-page="EditRole" asp-route-id="@role.Id">
+                                                <i class="fas fa-edit @(isRtl ? "ms-2" : "me-2") text-primary"></i> @L["تعديل الاسم"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                        <a class="dropdown-item py-2" asp-page="/Roles/ManageRoleClaims" asp-route-roleId="@role.Id">
+                                                <i class="fas fa-key @(isRtl ? "ms-2" : "me-2") text-warning"></i> @L["إدارة الصلاحيات"]
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form method="post" asp-page-handler="Delete" asp-route-id="@role.Id" class="delete-form">
+                                                <button type="button" class="dropdown-item py-2 text-danger btn-delete-confirm">
+                                                    <i class="fas fa-trash @(isRtl ? "ms-2" : "me-2")"></i> @L["حذف الدور"]
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+@* </div> *@
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function() {
+        // كود SweetAlert للحذف
+        $('.btn-delete-confirm').on('click', function() {
+        const form = $(this).closest('.delete-form');
+        Swal.fire({
+        title: '@L["Are you sure?"]',
+        text: '@L["سيتم حذف هذا الدور نهائياً!"]',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--danger)',
+        cancelButtonColor: 'var(--text-muted)',
+        confirmButtonText: '@L["Yes, delete it!"]',
+        cancelButtonText: '@L["Cancel"]',
+        background: 'var(--card-bg)',
+        color: 'var(--text)'
+        }).then((result) => {
+        if (result.isConfirmed) {
+        form.submit();
+        }
+        });
+        });
+        });
+    </script>
+}
