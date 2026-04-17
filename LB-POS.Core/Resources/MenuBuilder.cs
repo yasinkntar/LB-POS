@@ -17,6 +17,7 @@ namespace LB_POS.Core.Resources
                     {
                         new MenuItem { Title = "إحصائيات الفروع", Url = "/Dashboard/Index", Icon = "fas fa-chart-line" },
                         new MenuItem { Title = "الفروع", Url = "/Branches", Icon = "fas fa-store-alt" },
+                        new MenuItem { Title = "إدارة الاقسام", Url = "/Sections", Icon = "fas fa-fire-alt" },
                         new MenuItem { Title = "إدارة المطابخ", Url = "/Setup/Kitchens", Icon = "fas fa-fire-alt" },
                         new MenuItem { Title = "تخطيط الطاولات", Url = "/Setup/Tables", Icon = "fas fa-chair" }
                     }

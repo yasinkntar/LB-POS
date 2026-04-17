@@ -5,11 +5,13 @@
 @model LB_POS.Web.Pages.Branches.IndexModel
 
 @{
-    ViewData["Title"] = L[SharedResourcesKeys.BranchesManagement]; // تأكد من إضافة المفتاح في ملف المصادر
+    ViewData["Title"] = L[SharedResourcesKeys.BranchesManagement];
     var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
 }
+
 @inject IStringLocalizer<SharedResources> L
 
+@* --- الهيدر --- *@
 <div class="row align-items-center mb-4">
     <div class="col-md-6">
         <h4 class="mb-1 fw-bold text-primary">
@@ -23,20 +25,25 @@
     </div>
 </div>
 
+@* --- قسم البحث --- *@
 <div class="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
     <div class="card-body p-3 bg-card-custom">
         <form method="get" class="row g-3">
+            @* الاحتفاظ بحجم الصفحة عند البحث *@
+            <input type="hidden" name="PageSize" value="@Model.PageSize" />
+
             <div class="col-md-4">
                 <div class="custom-input-group">
                     <i class="fas fa-search icon"></i>
+                    @* إضافة علامات التنصيص المفقودة *@
                     <input name="SearchTerm"
-                           class="form-control custom-control" 
+                           class="form-control custom-control"
                            value="@Model.SearchTerm"
-                           placeholder=@L[SharedResourcesKeys.Placeholder]>
+                           placeholder="@L[SharedResourcesKeys.Placeholder]">
                 </div>
             </div>
             <div class="col-md-3">
-                </div>
+            </div>
             <div class="col-md-5 d-flex gap-2 justify-content-md-end">
                 <button type="submit" class="btn btn-primary px-4">@L[SharedResourcesKeys.Filter]</button>
                 <a asp-page="Index" class="btn btn-light border px-3">@L[SharedResourcesKeys.Reset]</a>
@@ -45,14 +52,14 @@
     </div>
 </div>
 
+@* --- الجدول --- *@
 <div class="card border-0 shadow-sm rounded-4">
     <div class="table-responsive">
         <table class="table custom-table-style align-middle mb-0">
             <thead>
                 <tr>
                     <th class="@(isRtl ? "ps-4" : "pe-4")">@L[SharedResourcesKeys.Branch]</th>
-                    <th>
-                        @L[SharedResourcesKeys.ActivityCode]</th>
+                    <th>@L[SharedResourcesKeys.ActivityCode]</th>
                     <th>@L[SharedResourcesKeys.Address]</th>
                     <th class="text-center">@L[SharedResourcesKeys.Actions]</th>
                 </tr>
@@ -68,7 +75,7 @@
                                     <div class="user-avatar-styled @(isRtl ? "ms-3" : "me-3") bg-primary-soft text-primary">
                                         @if (!string.IsNullOrEmpty(branch.Name))
                                         {
-                                            <span>@branch.Name[0].ToString().ToUpper()</span>
+                                            <span>@branch.Name.FirstOrDefault().ToString().ToUpper()</span>
                                         }
                                         else
                                         {
@@ -95,7 +102,6 @@
                             <td>
                                 <div class="d-flex flex-column">
                                     <span class="text-dark small"><i class="fas fa-map-marker-alt text-danger me-1 ms-1"></i> @branch.FullAddressc</span>
-                                    @* <small class="text-muted" style="font-size: 0.75rem;">@branch.Address.Street, @branch.Address.BuildingNumber</small> *@
                                 </div>
                             </td>
                             <td class="text-center">
@@ -134,37 +140,58 @@
     </div>
 </div>
 
-@* الجزء الخاص بالتنقيم (Pagination) بنفس المنطق الخاص بك *@
+@* --- الترقيم (Pagination) المعدل بإضافة تحديد الأسطر وحماية الـ Null --- *@
 <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between mt-4 gap-3 bg-light-soft p-3 rounded-4">
-    <div class="text-muted small">
-        @L[SharedResourcesKeys.Showing] <span class="fw-bold text-dark">@(((Model.PageNumber - 1) * Model.PageSize) + 1)</span>
-        @L[SharedResourcesKeys.To] <span class="fw-bold text-dark">@Math.Min(Model.PageNumber * Model.PageSize, Model.Branch.TotalCount)</span>
-        @L[SharedResourcesKeys.ShowingRange] <span class="fw-bold text-dark">@Model.Branch.TotalCount</span> @L[SharedResourcesKeys.Branch]
+    <div class="d-flex align-items-center gap-3">
+        @* كمبو تحديد عدد الأسطر *@
+        <div class="d-flex align-items-center bg-white border rounded-3 px-2">
+            <span class="text-muted small me-2 ms-2">@L["عرض"]</span>
+            <select class="form-select form-select-sm border-0 shadow-none"
+                    style="width: auto; cursor: pointer;"
+                    onchange="location.href='?PageNumber=1&SearchTerm=@Model.SearchTerm&PageSize=' + this.value">
+                <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                <option value="25" selected="@(Model.PageSize == 25)">25</option>
+                <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                <option value="100" selected="@(Model.PageSize == 100)">100</option>
+            </select>
+        </div>
+
+        <div class="text-muted small">
+            @L[SharedResourcesKeys.Showing] <span class="fw-bold text-dark">@(((Model.PageNumber - 1) * Model.PageSize) + 1)</span>
+            @L[SharedResourcesKeys.To] <span class="fw-bold text-dark">@Math.Min(Model.PageNumber * Model.PageSize, Model.Branch?.TotalCount ?? 0)</span>
+            @L[SharedResourcesKeys.ShowingRange] <span class="fw-bold text-dark">@(Model.Branch?.TotalCount ?? 0)</span> @L[SharedResourcesKeys.Branch]
+        </div>
     </div>
+
     <nav>
         <ul class="pagination pagination-rounded mb-0">
             <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
-                <a class="page-link border-0" asp-route-PageNumber="@(Model.PageNumber - 1)" asp-route-SearchTerm="@Model.SearchTerm"><i class="fas @(isRtl ? "fa-chevron-right" : "fa-chevron-left")"></i></a>
+                <a class="page-link border-0" asp-route-PageNumber="@(Model.PageNumber - 1)" asp-route-SearchTerm="@Model.SearchTerm" asp-route-PageSize="@Model.PageSize">
+                    <i class="fas @(isRtl ? "fa-chevron-right" : "fa-chevron-left")"></i>
+                </a>
             </li>
-            @for (int i = 1; i <= Model.Branch.TotalPages; i++)
+            @for (int i = 1; i <= (Model.Branch?.TotalPages ?? 1); i++)
             {
                 <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                    <a class="page-link border-0 mx-1" asp-route-PageNumber="@i" asp-route-SearchTerm="@Model.SearchTerm">@i</a>
+                    <a class="page-link border-0 mx-1" asp-route-PageNumber="@i" asp-route-SearchTerm="@Model.SearchTerm" asp-route-PageSize="@Model.PageSize">@i</a>
                 </li>
             }
-            <li class="page-item @(Model.PageNumber == Model.Branch.TotalPages ? "disabled" : "")">
-                <a class="page-link border-0" asp-route-PageNumber="@(Model.PageNumber + 1)" asp-route-SearchTerm="@Model.SearchTerm"><i class="fas @(isRtl ? "fa-chevron-left" : "fa-chevron-right")"></i></a>
+            <li class="page-item @(Model.PageNumber == (Model.Branch?.TotalPages ?? 1) ? "disabled" : "")">
+                <a class="page-link border-0" asp-route-PageNumber="@(Model.PageNumber + 1)" asp-route-SearchTerm="@Model.SearchTerm" asp-route-PageSize="@Model.PageSize">
+                    <i class="fas @(isRtl ? "fa-chevron-left" : "fa-chevron-right")"></i>
+                </a>
             </li>
         </ul>
     </nav>
 </div>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function confirmDelete(id) {
         Swal.fire({
         title: '@L["هل أنت متأكد؟"]',
-        text: 'AAAAAAAAAAAAA',
+        text: '@L["لن تتمكن من التراجع عن هذا الإجراء!"]', @* تم استبدال النص العشوائي هنا *@
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -173,7 +200,6 @@
         cancelButtonText: '@L["إلغاء"]'
         }).then((result) => {
         if (result.isConfirmed) {
-        // إرسال الفورم برمجياً
         document.getElementById('delete-form-' + id).submit();
         }
         })

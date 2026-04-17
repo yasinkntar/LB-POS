@@ -10,6 +10,7 @@ namespace LB_POS.Service
         public static IServiceCollection AddServiceDependencies(this IServiceCollection services)
         {
             services.AddTransient<IBranchService, BranchService>();
+            services.AddTransient<ISectionsService, SectionsService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
             services.AddTransient<IAuthorizationService, AuthorizationService>();
             services.AddTransient<IEmailsService, EmailsService>();

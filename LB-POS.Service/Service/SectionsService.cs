@@ -29,13 +29,26 @@ namespace LB_POS.Service.Service
 
         public IQueryable<Section> FilterSectionPaginatedQuerable(string search)
         {
-            var querable = _repository.GetTableNoTracking().AsQueryable();
+            //    var result = _repository.GetTableNoTracking()
+            //        .OrderBy(x => x.DisplayOrder)
+            //.Select(s => new SectionSummaryDto
+            //{
+            //    Id = s.Id,
+            //    Name = s.Name,
+            //    NameEn = s.NameEn,
+            //    BranchName = s.Branch.Name,
+            //    BranchNameEn = s.Branch.NameEn,// جلب اسم الفرع المرتبط
+            //    TablesCount = s.Tables.Count(),
+            //    WaitersCount = s.Waiters.Count()
+            //})
+            //.AsQueryable();
+            var result = _repository.GetTableNoTracking().AsQueryable();
             if (search != null)
             {
-                querable = querable.Where(x => x.Name.Contains(search));
+                result = result.Where(x => x.Name.Contains(search));
             }
-            querable.OrderBy(x => x.DisplayOrder);
-            return querable;
+            result.OrderBy(x => x.DisplayOrder);
+            return result;
 
         }
 
