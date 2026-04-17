@@ -38,8 +38,19 @@ namespace LB_POS.Core.Features.Section.Query.Handlers
             // 3. تحويل الداتا (التي أصبحت في الذاكرة) باستخدام AutoMapper لتعمل دالة Localize بأمان
             var mappedData = _mapper.Map<List<GetSectionListResponse>>(paginatedDtos.Data);
 
-            // 4. تجميع النتيجة النهائية في كائن PaginatedResult جديد
-            var result = new PaginatedResult<GetSectionListResponse>(mappedData);
+            // 4. 👈 الحل الجذري: تجميع النتيجة النهائية ونقل بيانات الترقيم لكي تعمل أزرار واجهة المستخدم
+            var result = new PaginatedResult<GetSectionListResponse>(mappedData)
+            {
+                CurrentPage = paginatedDtos.CurrentPage,
+                TotalPages = paginatedDtos.TotalPages,
+                TotalCount = paginatedDtos.TotalCount,
+                PageSize = paginatedDtos.PageSize,
+                //HasPreviousPage = paginatedDtos.HasPreviousPage,
+                //HasNextPage = paginatedDtos.HasNextPage,
+                Succeeded = paginatedDtos.Succeeded,
+                Messages = paginatedDtos.Messages,
+                Meta = new { Count = mappedData.Count }
+            };
 
             return result;
         }

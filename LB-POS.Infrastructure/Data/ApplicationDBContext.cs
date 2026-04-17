@@ -4,6 +4,7 @@ using EntityFrameworkCore.EncryptColumn.Util;
 using LB_POS.Data.Entities;
 using LB_POS.Data.Entities.Identity;
 using LB_POS.Data.Enums;
+using LB_POS.Infrastructure.Abstracts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -20,10 +21,13 @@ namespace LB_POS.Infrastructure.Data
         IdentityUserToken<int>>
     {
         private readonly IEncryptionProvider _encryptionProvider;
-
-        public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options)
+        private readonly ICurrentUser _currentUser;
+        public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options,
+    ICurrentUser currentUser)
             : base(options)
         {
+            _currentUser = currentUser;
+
             _encryptionProvider = new GenerateEncryptionProvider("8a4dcaaec64d412380fe4b02193cd26f");
         }
 
@@ -61,6 +65,17 @@ namespace LB_POS.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Branch>()
+    .HasQueryFilter(x =>
+        !_currentUser.AllowedBranches.Any()
+        || _currentUser.AllowedBranches.Contains(x.Id)
+    );
+
+            modelBuilder.Entity<Section>()
+    .HasQueryFilter(x =>
+        !_currentUser.AllowedBranches.Any()
+        || _currentUser.AllowedBranches.Contains(x.BranchId)
+    );
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             modelBuilder.UseEncryption(_encryptionProvider);
             modelBuilder.Entity<ItemKitchen>()

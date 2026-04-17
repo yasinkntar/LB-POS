@@ -1,0 +1,109 @@
+﻿@page "/Sections/Create"
+@using LB_POS.Core.Resources
+@using Microsoft.Extensions.Localization
+@model LB_POS.Web.Pages.Sections.CreateSectionModel
+
+@{
+    ViewData["Title"] = L["إضافة قسم جديد"];
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+}
+
+@inject IStringLocalizer<SharedResources> L
+
+@* --- الهيدر العلوي --- *@
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h4 class="mb-1 fw-bold text-primary">
+            <i class="fas fa-plus-circle @(isRtl ? "ms-2" : "me-2")"></i>@L["إضافة قسم جديد"]
+        </h4>
+        <p class="text-muted small mb-0">@L["يرجى إدخال بيانات القسم الجديد لتسجيله في النظام."]</p>
+    </div>
+    <div class="col-md-6 d-flex justify-content-md-end mt-3 mt-md-0">
+        <a asp-page="Index" class="btn btn-outline-secondary px-4 shadow-sm d-flex align-items-center rounded-pill">
+            <i class="fas @(isRtl ? "fa-arrow-right ms-2" : "fa-arrow-left me-2")"></i> @L[SharedResourcesKeys.BackToList]
+        </a>
+    </div>
+</div>
+
+<form method="post" class="needs-validation" novalidate>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 shadow-sm border-0 mb-4"></div>
+
+    <div class="row g-4">
+        @* --- قسم البيانات العامة --- *@
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white py-3">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-info-circle mx-2"></i>@L[SharedResourcesKeys.General]</h6>
+                </div>
+                <div class="card-body p-4 bg-white">
+                    <div class="row g-4">
+                        @* الاسم بالعربية *@
+                        <div class="col-md-6">
+                            <label asp-for="Command.Name" class="form-label fw-bold small text-muted">@L["الاسم (بالعربية)"] <span class="text-danger">*</span></label>
+                            <input asp-for="Command.Name" class="form-control bg-light border-0" placeholder="@L["أدخل اسم القسم بالعربية"]" required>
+                                <span asp-validation-for="Command.Name" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            @* الاسم بالإنجليزية *@
+                            <div class="col-md-6">
+                                <label asp-for="Command.NameEn" class="form-label fw-bold small text-muted">@L["الاسم (بالإنجليزية)"] <span class="text-danger">*</span></label>
+                                <input asp-for="Command.NameEn" class="form-control bg-light border-0 text-start" dir="ltr" placeholder="Enter Section Name in English" required>
+                                    <span asp-validation-for="Command.NameEn" class="text-danger small mt-1 d-block"></span>
+                                </div>
+
+                                @* الفرع *@
+                                <div class="col-md-6">
+                                    <label asp-for="Command.BranchId" class="form-label fw-bold small text-muted">@L["الفرع التابع له"] <span class="text-danger">*</span></label>
+                                    <select asp-for="Command.BranchId" asp-items="Model.BranchesList" class="form-select bg-light border-0" required>
+                                        <option value="">@L["-- اختر الفرع --"]</option>
+                                    </select>
+                                    <span asp-validation-for="Command.BranchId" class="text-danger small mt-1 d-block"></span>
+                                </div>
+
+                                @* ترتيب العرض *@
+                                <div class="col-md-6">
+                                    <label asp-for="Command.DisplayOrder" class="form-label fw-bold small text-muted">@L["ترتيب العرض"]</label>
+                                    <input asp-for="Command.DisplayOrder" type="number" min="1" class="form-control bg-light border-0" placeholder="1">
+                                        <span asp-validation-for="Command.DisplayOrder" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* --- قسم الأزرار --- *@
+                    <div class="col-12 mt-4 mb-5">
+                        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                            <div class="d-flex justify-content-end gap-3">
+                                <a asp-page="Index" class="btn btn-light border px-4 rounded-pill">@L[SharedResourcesKeys.Reset]</a>
+                                <button type="submit" class="btn btn-primary px-5 shadow-sm rounded-pill">
+                                    <i class="fas fa-save mx-2"></i> @L[SharedResourcesKeys.SaveChanges]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            @* تفعيل التحقق من صحة الإدخال (Validation) *@
+            @section Scripts {
+                <partial name="_ValidationScriptsPartial" />
+    
+                <script>
+                    // سكريبت للتحقق من الحقول قبل الإرسال (Bootstrap Validation)
+                    (function () {
+                        'use strict'
+                        var forms = document.querySelectorAll('.needs-validation')
+                        Array.prototype.slice.call(forms)
+                            .forEach(function (form) {
+                                form.addEventListener('submit', function (event) {
+                                    if (!form.checkValidity()) {
+                                        event.preventDefault()
+                                        event.stopPropagation()
+                                    }
+                                    form.classList.add('was-validated')
+                                }, false)
+                            })
+                    })()
+                </script>
+            }

@@ -7,6 +7,7 @@ namespace LB_POS.Core.Mapping.Section
         public SectionProfile()
         {
             this.GetSectionMapping();
+            InsertSectionMapping();
         }
     }
 }

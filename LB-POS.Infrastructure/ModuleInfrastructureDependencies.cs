@@ -13,7 +13,9 @@ namespace LB_POS.Infrastructure
             services.AddTransient<ISectionsRepository, SectionsRepository>();
             services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddTransient(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));
-            //services.AddTransient(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICurrentUser, CurrentUserService>();
+            services.AddScoped<IUserBranchService, UserBranchService>();
             return services;
         }
     }
